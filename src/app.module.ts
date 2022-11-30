@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { UserController } from './user.controller';
-import { UserService } from './user.service';
+import { UserController } from './controllers/user.controller';
+import { UserService } from './services/user.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from "@nestjs/config";
 import { UserSchema } from "./schemas/user.schema";
 import { DocumentName } from "./enums/document-name";
 import { JwtModule } from "@nestjs/jwt";
+import { UserRepositoryService } from './repositories/user.repository.service';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { JwtModule } from "@nestjs/jwt";
     JwtModule.register({ secret: process.env.ACCESS_JWT_PRIVATE_KEY })
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, UserRepositoryService]
 })
 export class AppModule {}
