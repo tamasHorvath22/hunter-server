@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from "@nestjs/config";
 import { UserSchema } from "./schemas/user.schema";
 import { DocumentName } from "./enums/document-name";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { DocumentName } from "./enums/document-name";
     MongooseModule.forFeature([
       { name: DocumentName.USER, schema: UserSchema }
     ]),
+    JwtModule.register({ secret: process.env.ACCESS_JWT_PRIVATE_KEY })
   ],
   controllers: [UserController],
   providers: [UserService],
