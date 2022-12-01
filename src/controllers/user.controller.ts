@@ -19,4 +19,10 @@ export class UserController {
   async login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
     return this.userService.login(loginDto);
   }
+
+  @Post('/set-password')
+  async setPassword(@Body() loginDto: LoginDto): Promise<{ token: string }> {
+    return this.userService.setPassword(loginDto);
+  }
+
 }

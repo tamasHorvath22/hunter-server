@@ -25,15 +25,31 @@ export class UserService {
   async login(loginDto: LoginDto): Promise<{ token: string }> {
     const user = await this.userRepository.findByUsername(loginDto.username);
     if (!user) {
-      throw new HttpException(Response.NO_USER_FOUND, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(Response.WRONG_NAME_OR_PASS, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     if (!user.password) {
       user.password = await bcrypt.hash(loginDto.password, 10);
       // await this.userRepository.updateUser(user);
-      return { token: Response.NO_PASSWORD_SET };
+      throw new HttpException(Response.NO_PASSWORD_SET, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     if (!await bcrypt.compare(loginDto.password, user.password)) {
       throw new HttpException(Response.WRONG_NAME_OR_PASS, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    return { token: this.generateJwtToken(user) };
+  }
+
+  async setPassword(loginDto: LoginDto): Promise<{ token: string }> {
+    const user = await this.userRepository.findByUsername(loginDto.username);
+    if (!user) {
+      throw new HttpException(Response.NO_USER_FOUND, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    if (user.password) {
+      throw new HttpException(Response.PASSWORD_ALREADY_SET, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    user.password = await bcrypt.hash(loginDto.password, 10);
+    const success = await this.userRepository.updateUser(user);
+    if (!success) {
+      throw new HttpException(Response.DATABASE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     return { token: this.generateJwtToken(user) };
   }
@@ -43,7 +59,8 @@ export class UserService {
       {
         userId: user._id.toString(),
         username: user.username
-      }
+      },
+      { expiresIn: 31556926 }
     );
   }
 }
