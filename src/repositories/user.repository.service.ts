@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { UserDocument } from '../schemas/user.schema';
 import { Model } from 'mongoose';
 import { DocumentName } from '../enums/document-name';
-import { Role } from '../enums/role';
+import { CreateUserDto } from '../dtos/create-user.dto';
 
 @Injectable()
 export class UserRepositoryService {
@@ -11,17 +11,23 @@ export class UserRepositoryService {
     @InjectModel(DocumentName.USER) private userModel: Model<UserDocument>,
   ) {}
 
-  public async createUser(username: string): Promise<boolean> {
+  public async createUser(createUserDto: CreateUserDto): Promise<boolean> {
     const session = await this.userModel.db.startSession();
     session.startTransaction();
     try {
-      const newUser = new this.userModel({ username: username, role: Role.USER, password: null });
+      const newUser = new this.userModel({
+        username: createUserDto.username,
+        role: createUserDto.role,
+        password: null
+      });
       await newUser.save();
       await session.commitTransaction();
       return true;
     } catch (e) {
-      console.error(e);
       await session.abortTransaction();
+      if (e.keyPattern.username) {
+        return null;
+      }
       return false;
     } finally {
       await session.endSession();

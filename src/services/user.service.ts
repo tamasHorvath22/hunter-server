@@ -16,7 +16,10 @@ export class UserService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<void> {
-    const saved = this.userRepository.createUser(createUserDto.username);
+    const saved = await this.userRepository.createUser(createUserDto);
+    if (saved === null) {
+      throw new HttpException(Response.USERNAME_TAKEN, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     if (!saved) {
       throw new HttpException(Response.USER_CREATE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -58,7 +61,8 @@ export class UserService {
     return this.jwtService.sign(
       {
         userId: user._id.toString(),
-        username: user.username
+        username: user.username,
+        role: user.role
       },
       { expiresIn: 31556926 }
     );
