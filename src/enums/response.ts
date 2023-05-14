@@ -5,5 +5,6 @@ export enum Response {
 	WRONG_NAME_OR_PASS = 'Hibás felhasználónév vagy jelszó',
 	NO_PASSWORD_SET = 'NO_PASSWORD_SET',
 	PASSWORD_ALREADY_SET = 'PASSWORD_ALREADY_SET',
-	USERNAME_TAKEN = 'A felhasználónév már foglalt'
+	USERNAME_TAKEN = 'A felhasználónév már foglalt',
+	CASE_CREATE_ERROR = 'Az ügy létrehozása nem sikerült'
 }
