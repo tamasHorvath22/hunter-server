@@ -7,13 +7,12 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 
 @Injectable()
 export class UserRepositoryService {
-  constructor(
-    @InjectModel(DocumentName.USER) private userModel: Model<UserDocument>,
-  ) {}
+  constructor(@InjectModel(DocumentName.USER) private userModel: Model<UserDocument>) {}
 
   public async createUser(createUserDto: CreateUserDto): Promise<boolean> {
     const session = await this.userModel.db.startSession();
     session.startTransaction();
+
     try {
       const newUser = new this.userModel({
         username: createUserDto.username,
@@ -22,15 +21,15 @@ export class UserRepositoryService {
       });
       await newUser.save();
       await session.commitTransaction();
+      await session.endSession();
       return true;
     } catch (e) {
       await session.abortTransaction();
+      await session.endSession();
       if (e.keyPattern.username) {
         return null;
       }
       return false;
-    } finally {
-      await session.endSession();
     }
   }
 

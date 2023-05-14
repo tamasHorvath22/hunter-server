@@ -1,3 +1,4 @@
 export enum DocumentName {
-	USER = 'user'
+	USER = 'user',
+	CASE = 'case'
 }

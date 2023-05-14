@@ -6,6 +6,7 @@ import { Response } from '../enums/response';
 import { JwtService } from '@nestjs/jwt';
 import { UserDocument } from '../schemas/user.schema';
 import * as bcrypt from 'bcrypt';
+import { UserMapper } from '../mappers/user.mapper';
 
 @Injectable()
 export class UserService {
@@ -16,6 +17,7 @@ export class UserService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<void> {
+    console.log(createUserDto)
     const saved = await this.userRepository.createUser(createUserDto);
     if (saved === null) {
       throw new HttpException(Response.USERNAME_TAKEN, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -32,7 +34,6 @@ export class UserService {
     }
     if (!user.password) {
       user.password = await bcrypt.hash(loginDto.password, 10);
-      // await this.userRepository.updateUser(user);
       throw new HttpException(Response.NO_PASSWORD_SET, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     if (!await bcrypt.compare(loginDto.password, user.password)) {
@@ -58,13 +59,14 @@ export class UserService {
   }
 
   private generateJwtToken(user: UserDocument): string {
+    const userType = UserMapper.toUserDto(user);
     return this.jwtService.sign(
       {
-        userId: user._id.toString(),
-        username: user.username,
-        role: user.role
+        userId: userType.id,
+        username: userType.username,
+        role: userType.role
       },
-      { expiresIn: 31556926 }
+      { expiresIn: '1h' }
     );
   }
 }
