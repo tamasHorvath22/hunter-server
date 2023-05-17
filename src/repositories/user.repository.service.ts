@@ -1,64 +1,47 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { UserDocument } from '../schemas/user.schema';
-import { Model } from 'mongoose';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from '../schemas/user.schema';
+import { FilterQuery, Model } from 'mongoose';
 import { DocumentName } from '../enums/document-name';
-import { CreateUserDto } from '../dtos/create-user.dto';
+import * as mongoose from 'mongoose';
+import { UsernameTakenException } from '../exceptions/username-taken.exception';
+import { Response } from '../enums/response';
 
 @Injectable()
 export class UserRepositoryService {
-  constructor(@InjectModel(DocumentName.USER) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(DocumentName.USER) private userModel: Model<UserDocument>,
+    @InjectConnection() private readonly connection: mongoose.Connection
+  ) {}
 
-  public async createUser(createUserDto: CreateUserDto): Promise<boolean> {
-    const session = await this.userModel.db.startSession();
-    session.startTransaction();
+  public async createUser(user: User): Promise<void> {
+    const transactionSession = await this.connection.startSession();
+    transactionSession.startTransaction();
 
     try {
-      const newUser = new this.userModel({
-        username: createUserDto.username,
-        role: createUserDto.role,
-        password: null
-      });
+      const newUser = new this.userModel(user);
       await newUser.save();
-      await session.commitTransaction();
-      await session.endSession();
-      return true;
-    } catch (e) {
-      await session.abortTransaction();
-      await session.endSession();
-      if (e.keyPattern.username) {
-        return null;
+      await transactionSession.commitTransaction();
+      await transactionSession.endSession();
+    } catch (error) {
+      await transactionSession.abortTransaction();
+      await transactionSession.endSession();
+      if (error.keyPattern.username) {
+        throw new UsernameTakenException();
       }
-      return false;
+      throw new HttpException(Response.USER_CREATE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  public async findById(id: string): Promise<UserDocument> {
-    try {
-      return await this.userModel.findById(id);
-    } catch (e) {
-      console.error(e);
-      return null;
-    }
+  public async find(userFilterQuery: FilterQuery<User>): Promise<UserDocument> {
+    return this.userModel.findOne(userFilterQuery);
   }
 
-  public async findByUsername(username: string): Promise<UserDocument> {
-    try {
-      return await this.userModel.findOne({ username: username });
-    } catch (e) {
-      console.error(e);
-      return null;
-    }
-  }
-
-  public async updateUser(user: UserDocument): Promise<boolean> {
-    try {
-      await this.userModel.findByIdAndUpdate(user._id, user);
-      return true;
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
+  public async updateUser(
+    userFilterQuery: FilterQuery<User>,
+    user: Partial<User>
+  ): Promise<UserDocument> {
+    return this.userModel.findByIdAndUpdate(userFilterQuery, user);
   }
 
 }

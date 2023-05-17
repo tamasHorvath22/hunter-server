@@ -9,6 +9,8 @@ export class User {
   @Prop({ unique: true }) username: string;
   @Prop() password: string;
   @Prop() role: Role;
+  @Prop() isActive: boolean;
+  @Prop() validUntil: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

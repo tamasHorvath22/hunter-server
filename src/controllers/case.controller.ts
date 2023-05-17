@@ -6,11 +6,11 @@ import { CreateCaseDto } from '../dtos/create-case.dto';
 import { CaseService } from '../services/case.service';
 
 @Controller('/api')
-export class UserController {
+export class CaseController {
   constructor(private readonly caseService: CaseService) {}
 
   @Post('/case')
-  @UseGuards(RoleGuard)
+  @UseGuards(RoleGuard())
   async createCase(
     @Body() createCaseDto: CreateCaseDto,
     @JwtTokenDecoder() user: UserDocument

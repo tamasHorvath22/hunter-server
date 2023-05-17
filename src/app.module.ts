@@ -4,7 +4,6 @@ import { ConfigModule } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 
 import { UserController } from './controllers/user.controller';
-import { DefaultController } from './controllers/default.controller';
 import { UserRepositoryService } from './repositories/user.repository.service';
 import { UserService } from './services/user.service';
 import { DocumentName } from "./enums/document-name";
@@ -12,6 +11,9 @@ import { UserSchema } from "./schemas/user.schema";
 import { CaseSchema } from './schemas/case.schema';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { CaseController } from './controllers/case.controller';
+import { CaseService } from './services/case.service';
+import { CaseRepositoryService } from './repositories/case.repository.service';
 
 @Module({
   imports: [
@@ -26,7 +28,15 @@ import { join } from 'path';
     ]),
     JwtModule.register({ secret: process.env.ACCESS_JWT_PRIVATE_KEY })
   ],
-  controllers: [UserController, DefaultController],
-  providers: [UserService, UserRepositoryService]
+  controllers: [
+    UserController,
+    CaseController
+  ],
+  providers: [
+    UserService,
+    UserRepositoryService,
+    CaseService,
+    CaseRepositoryService
+  ]
 })
 export class AppModule {}
