@@ -1,5 +1,5 @@
-import { IsString } from 'class-validator';
+import { IsNotEmptyString } from '../validators/not-empty-string';
 
 export class CreateCaseDto {
-  @IsString() name: string;
+  @IsNotEmptyString() name: string;
 }

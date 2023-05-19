@@ -8,6 +8,7 @@ import { CaseDocument } from '../schemas/case.schema';
 export class CaseRepositoryService {
   constructor(@InjectModel(DocumentName.CASE) private caseModel: Model<CaseDocument>) {}
 
+  // TODO refactor
   public async createCase(caseName: string, owner: string): Promise<boolean> {
     const session = await this.caseModel.db.startSession();
     session.startTransaction();
