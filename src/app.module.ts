@@ -14,9 +14,12 @@ import { join } from 'path';
 import { CaseController } from './controllers/case.controller';
 import { CaseService } from './services/case.service';
 import { CaseRepositoryService } from './repositories/case.repository.service';
+import { SubscribedSchema } from './schemas/subscribed.schema';
+import { SubscribedRepositoryService } from './repositories/subscribed.repository.service';
 
 @Module({
   imports: [
+    // TODO is this needed??
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client'),
     }),
@@ -24,7 +27,8 @@ import { CaseRepositoryService } from './repositories/case.repository.service';
     MongooseModule.forRoot(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASS}@${process.env.DB_CLUSTER}${process.env.DB_NAME}?retryWrites=true&w=majority`),
     MongooseModule.forFeature([
       { name: DocumentName.USER, schema: UserSchema },
-      { name: DocumentName.CASE, schema: CaseSchema }
+      { name: DocumentName.CASE, schema: CaseSchema },
+      { name: DocumentName.SUBSCRIBED, schema: SubscribedSchema }
     ]),
     JwtModule.register({ secret: process.env.ACCESS_JWT_PRIVATE_KEY })
   ],
@@ -36,7 +40,8 @@ import { CaseRepositoryService } from './repositories/case.repository.service';
     UserService,
     UserRepositoryService,
     CaseService,
-    CaseRepositoryService
+    CaseRepositoryService,
+    SubscribedRepositoryService
   ]
 })
 export class AppModule {}

@@ -1,4 +1,5 @@
 export enum DocumentName {
 	USER = 'user',
-	CASE = 'case'
+	CASE = 'case',
+	SUBSCRIBED = 'subscribed'
 }

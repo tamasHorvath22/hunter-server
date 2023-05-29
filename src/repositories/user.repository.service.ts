@@ -1,9 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
-import { FilterQuery, Model } from 'mongoose';
+import { FilterQuery, Model, Connection } from 'mongoose';
 import { DocumentName } from '../enums/document-name';
-import * as mongoose from 'mongoose';
 import { UsernameTakenException } from '../exceptions/username-taken.exception';
 import { Response } from '../enums/response';
 
@@ -11,10 +10,10 @@ import { Response } from '../enums/response';
 export class UserRepositoryService {
   constructor(
     @InjectModel(DocumentName.USER) private userModel: Model<UserDocument>,
-    @InjectConnection() private readonly connection: mongoose.Connection
+    @InjectConnection() private readonly connection: Connection
   ) {}
 
-  public async createUser(user: User): Promise<void> {
+  public async createUser(user: User): Promise<UserDocument> {
     const transactionSession = await this.connection.startSession();
     transactionSession.startTransaction();
 
@@ -23,6 +22,7 @@ export class UserRepositoryService {
       await newUser.save();
       await transactionSession.commitTransaction();
       await transactionSession.endSession();
+      return newUser;
     } catch (error) {
       await transactionSession.abortTransaction();
       await transactionSession.endSession();

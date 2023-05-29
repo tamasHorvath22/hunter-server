@@ -7,5 +7,7 @@ export enum Response {
 	PASSWORD_ALREADY_SET = 'Jelszó már be lett állítva',
 	USERNAME_TAKEN = 'A felhasználónév már foglalt',
 	CASE_CREATE_ERROR = 'Az ügy létrehozása nem sikerült',
-	MUST_BE_STRING = 'A mező nem lehet üres'
+	MUST_NOT_BE_EMPTY = 'A mező nem lehet üres',
+	USER_NOT_SUBSCRIBED = 'Ezzel az email címmel előfizető nem létezik',
+	MUST_BE_EMAIL = 'Érvényes email címet adj meg'
 }

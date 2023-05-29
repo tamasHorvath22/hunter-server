@@ -1,28 +1,22 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { RoleGuard } from "../guards/role-guard";
 import { Role } from "../enums/role";
-import { CreateUserDto } from '../dtos/create-user.dto';
-import { LoginDto } from '../dtos/login.dto';
+import { CreateSubscriberDto } from '../dtos/create-subscriber.dto';
 
 @Controller('/api')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('/create-user')
+  @Post('/create-subscriber')
   // @UseGuards(RoleGuard(Role.ADMIN))
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<void> {
-    return this.userService.createUser(createUserDto);
+  async createSubscriber(@Body() createUserDto: CreateSubscriberDto): Promise<void> {
+    return this.userService.createSubscriber(createUserDto);
   }
 
   @Post('/login')
-  async login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
-    return this.userService.login(loginDto);
-  }
-
-  @Post('/set-password')
-  async setPassword(@Body() loginDto: LoginDto): Promise<{ token: string }> {
-    return this.userService.setPassword(loginDto);
+  async login(@Body() loginDto: { email: string }): Promise<{ token: string }> {
+    return this.userService.login(loginDto.email);
   }
 
 }
