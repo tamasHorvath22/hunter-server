@@ -26,9 +26,9 @@ export class UserRepositoryService {
     } catch (error) {
       await transactionSession.abortTransaction();
       await transactionSession.endSession();
-      if (error.keyPattern.username) {
-        throw new UsernameTakenException();
-      }
+      // if (error.keyPattern.username) {
+      //   throw new UsernameTakenException();
+      // }
       throw new HttpException(Response.USER_CREATE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
