@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CreateSubscriberDto } from '../dtos/create-subscriber.dto';
+import { EmailAuthDto } from '../dtos/email-auth.dto';
 import { Response } from '../enums/response';
 import { Role } from '../enums/role';
 import { UserRepositoryService } from '../repositories/user.repository.service';
@@ -38,7 +38,7 @@ export class UserService {
     return { token: this.generateJwtToken(user) };
   }
 
-  async createSubscriber(createUserDto: CreateSubscriberDto): Promise<void> {
+  async createSubscriber(createUserDto: EmailAuthDto): Promise<void> {
     const subscriber: Subscribed = { email: createUserDto.email };
     await this.subscribedRepositoryService.createSubscriber(subscriber);
   }

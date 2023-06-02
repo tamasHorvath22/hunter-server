@@ -2,31 +2,26 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DocumentName } from '../enums/document-name';
-import { CaseDocument } from '../schemas/case.schema';
+import { Case, CaseDocument } from '../schemas/case.schema';
 
 @Injectable()
 export class CaseRepositoryService {
   constructor(@InjectModel(DocumentName.CASE) private caseModel: Model<CaseDocument>) {}
 
   // TODO refactor
-  public async createCase(caseName: string, owner: string): Promise<boolean> {
+  public async createCase(newCase: Case): Promise<Case> {
     const session = await this.caseModel.db.startSession();
     session.startTransaction();
     try {
-      const newCase = new this.caseModel({
-        name: caseName,
-        owner: owner,
-        participants: [],
-        isOpen: true
-      });
-      await newCase.save();
+      const newCaseDocument = new this.caseModel(newCase);
+      await newCaseDocument.save();
       await session.commitTransaction();
-      return true;
+      await session.endSession();
+      return newCaseDocument;
     } catch (e) {
       await session.abortTransaction();
-      return false;
-    } finally {
       await session.endSession();
+      return null
     }
   }
 

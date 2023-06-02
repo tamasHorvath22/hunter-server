@@ -3,7 +3,6 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 import { FilterQuery, Model, Connection } from 'mongoose';
 import { DocumentName } from '../enums/document-name';
-import { UsernameTakenException } from '../exceptions/username-taken.exception';
 import { Response } from '../enums/response';
 
 @Injectable()
@@ -26,9 +25,6 @@ export class UserRepositoryService {
     } catch (error) {
       await transactionSession.abortTransaction();
       await transactionSession.endSession();
-      // if (error.keyPattern.username) {
-      //   throw new UsernameTakenException();
-      // }
       throw new HttpException(Response.USER_CREATE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
