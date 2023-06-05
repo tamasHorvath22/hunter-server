@@ -25,4 +25,8 @@ export class CaseRepositoryService {
     }
   }
 
+  public async getUserCases(userId: string): Promise<Case[]> {
+    return await this.caseModel.find({ creator: { $in: userId }}).exec();
+  }
+
 }
