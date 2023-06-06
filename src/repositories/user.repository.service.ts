@@ -23,6 +23,7 @@ export class UserRepositoryService {
       await transactionSession.endSession();
       return newUser;
     } catch (error) {
+      console.error(error)
       await transactionSession.abortTransaction();
       await transactionSession.endSession();
       throw new HttpException(Response.USER_CREATE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
