@@ -9,5 +9,7 @@ export enum Response {
 	CASE_CREATE_ERROR = 'Az ügy létrehozása nem sikerült',
 	MUST_NOT_BE_EMPTY = 'A mező nem lehet üres',
 	USER_NOT_SUBSCRIBED = 'Ezzel az email címmel előfizető nem létezik',
-	MUST_BE_EMAIL = 'Érvényes email címet adj meg'
+	MUST_BE_EMAIL = 'Érvényes email címet adj meg',
+	CASE_NO_RIGHTS = 'Nincs joga megtekinteni ezt az ügyet',
+	CASE_NOT_FOUND = 'Az ügy nem található'
 }

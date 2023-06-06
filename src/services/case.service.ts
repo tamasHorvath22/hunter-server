@@ -6,6 +6,9 @@ import { UpdateCaseDto } from '../dtos/update-case.dto';
 import { Case } from '../schemas/case.schema';
 import { CaseMetaDto } from '../dtos/case-meta.dto';
 import { CaseMapper } from '../mappers/case.mapper';
+import { CaseNoRightsException } from '../exceptions/case-no-rights.exception';
+import { CaseNotFoundException } from '../exceptions/case-not-found.exception';
+import { CaseDto } from '../dtos/case.dto';
 
 @Injectable()
 export class CaseService {
@@ -40,5 +43,16 @@ export class CaseService {
       return [];
     }
     return cases.map(CaseMapper.toCaseMeta);
+  }
+
+  async getCase(userId: string, caseId: string): Promise<CaseDto> {
+    const caseData = await this.caseRepository.getCase(caseId);
+    if (!caseData) {
+      throw new CaseNotFoundException();
+    }
+    if (caseData.creator !== userId) {
+      throw new CaseNoRightsException();
+    }
+    return CaseMapper.toCaseDto(caseData);
   }
 }

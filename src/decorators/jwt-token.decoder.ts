@@ -1,8 +1,8 @@
 import { createParamDecorator } from '@nestjs/common';
 import { JwtService } from "@nestjs/jwt";
-import { UserDocument } from '../schemas/user.schema';
+import { TokenUser } from '../types/token-user';
 
-export const JwtTokenDecoder = createParamDecorator((data, req): UserDocument => {
+export const JwtTokenDecoder = createParamDecorator((data, req): TokenUser => {
   const jwtService = new JwtService({ secret: process.env.ACCESS_JWT_PRIVATE_KEY });
-  return jwtService.decode(req.args[1].req.headers.authorization.substring(7)) as UserDocument;
+  return jwtService.decode(req.args[1].req.headers.authorization.substring(7)) as TokenUser;
 });
