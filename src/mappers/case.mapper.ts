@@ -5,7 +5,8 @@ export namespace CaseMapper {
   export function toCaseMeta(inputCase: Case): CaseMetaDto {
     return {
       name: inputCase.name,
-      createdAt: inputCase.createdAt
+      createdAt: inputCase.createdAt,
+      id: inputCase._id.toString()
     }
   }
 }
