@@ -13,6 +13,7 @@ export interface AreaDto {
   owners: OwnerDto[];
   area: number;
   type: string;
+  id: string;
 }
 
 export interface VoterAreaDto extends AreaDto {
@@ -28,4 +29,7 @@ export interface OwnerDto {
 
 export class VoterDto {
   areas: VoterAreaDto[];
+  name: string;
+  company: string;
+  id: string;
 }

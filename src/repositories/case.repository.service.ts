@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DocumentName } from '../enums/document-name';
 import { Case, CaseDocument } from '../schemas/case.schema';
+import { CaseNotFoundException } from '../exceptions/case-not-found.exception';
 
 @Injectable()
 export class CaseRepositoryService {
@@ -13,7 +14,7 @@ export class CaseRepositoryService {
     const session = await this.caseModel.db.startSession();
     session.startTransaction();
     try {
-      const newCaseDocument = new this.caseModel(newCase);
+      const newCaseDocument = this.createAreaIds(new this.caseModel(newCase));
       await newCaseDocument.save();
       await session.commitTransaction();
       await session.endSession();
@@ -30,7 +31,19 @@ export class CaseRepositoryService {
   }
 
   public async getCase(caseId: string): Promise<Case> {
-    return await this.caseModel.findById(caseId).exec();
+    try {
+      return await this.caseModel.findById(caseId).exec();
+    } catch {
+      throw new CaseNotFoundException();
+    }
+  }
+
+  private createAreaIds(newCase: CaseDocument): CaseDocument {
+    const caseId = newCase._id.toString();
+    for (let index = 0; index < newCase.rawAreas.length; index++) {
+      newCase.rawAreas[index].id = `${caseId}-area-${index}`;
+    }
+    return newCase;
   }
 
 }

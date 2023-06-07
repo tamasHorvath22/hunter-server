@@ -21,6 +21,7 @@ export class Area {
   @Prop() owners: Owner[];
   @Prop() area: number;
   @Prop() type: string;
+  @Prop() id: string;
 }
 
 export class VoterArea extends Area {
@@ -36,4 +37,7 @@ export class Owner {
 
 export class Voter {
   @Prop() areas: VoterArea[];
+  @Prop() name: string;
+  @Prop() company: string;
+  @Prop() id: string;
 }
