@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { DocumentName } from '../enums/document-name';
 import { Case, CaseDocument } from '../schemas/case.schema';
 import { CaseNotFoundException } from '../exceptions/case-not-found.exception';
+import { UpdateCaseDto } from '../dtos/case-request.dtos';
 
 @Injectable()
 export class CaseRepositoryService {
@@ -36,6 +37,24 @@ export class CaseRepositoryService {
     } catch {
       throw new CaseNotFoundException();
     }
+  }
+
+  public async updateCase(caseId: mongoose.Types.ObjectId, updateCase: UpdateCaseDto): Promise<Case> {
+    const session = await this.caseModel.db.startSession();
+    session.startTransaction();
+
+    await this.caseModel.updateOne(
+      { _id: caseId },
+      { $set: {
+        name: updateCase.name,
+        voters: updateCase.voters,
+        includedAreaTypes: updateCase.includedAreaTypes,
+        isClosed: updateCase.isClosed
+      }}
+    );
+    await session.commitTransaction();
+    await session.endSession();
+    return this.getCase(caseId.toString());
   }
 
   private createAreaIds(newCase: CaseDocument): CaseDocument {

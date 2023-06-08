@@ -1,14 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateCaseDto } from '../dtos/create-case.dto';
 import { CaseRepositoryService } from '../repositories/case.repository.service';
 import { Response } from '../enums/response';
-import { UpdateCaseDto } from '../dtos/update-case.dto';
 import { Case } from '../schemas/case.schema';
 import { CaseMetaDto } from '../dtos/case-meta.dto';
 import { CaseMapper } from '../mappers/case.mapper';
 import { CaseNoRightsException } from '../exceptions/case-no-rights.exception';
 import { CaseNotFoundException } from '../exceptions/case-not-found.exception';
-import { CaseDto } from '../dtos/case.dto';
+import { CaseResponseDto, UpdatedCaseDto } from '../dtos/case-response.dto';
+import { CreateCaseDto, UpdateCaseDto } from '../dtos/case-request.dtos';
 
 @Injectable()
 export class CaseService {
@@ -33,8 +32,13 @@ export class CaseService {
     return this.getCases(userId);
   }
 
-  async updateCase(updateCaseDto: UpdateCaseDto, userId: string): Promise<void> {
-    console.warn(updateCaseDto);
+  async updateCase(updateCaseDto: UpdateCaseDto, userId: string): Promise<UpdatedCaseDto> {
+    const caseData = await this.caseRepository.getCase(updateCaseDto.id);
+    if (!caseData || caseData.creator !== userId) {
+      throw new CaseNotFoundException();
+    }
+    const updatedCase = await this.caseRepository.updateCase(caseData._id, updateCaseDto);
+    return CaseMapper.toUpdatedCaseDto(updatedCase);
   }
 
   async getCases(userId: string): Promise<CaseMetaDto[]> {
@@ -45,7 +49,7 @@ export class CaseService {
     return cases.map(CaseMapper.toCaseMeta);
   }
 
-  async getCase(userId: string, caseId: string): Promise<CaseDto> {
+  async getCase(userId: string, caseId: string): Promise<CaseResponseDto> {
     const caseData = await this.caseRepository.getCase(caseId);
     if (!caseData) {
       throw new CaseNotFoundException();

@@ -24,11 +24,6 @@ export class Area {
   @Prop() id: string;
 }
 
-export class VoterArea extends Area {
-  @Prop() quota: number;
-  @Prop() isEligibleToVote: boolean;
-}
-
 export class Owner {
   @Prop() quota: number;
   @Prop() type: string;
@@ -40,4 +35,9 @@ export class Voter {
   @Prop() name: string;
   @Prop() company: string;
   @Prop() id: string;
+}
+
+export class VoterArea {
+  @Prop() areaId: string;
+  @Prop() quota: number;
 }
