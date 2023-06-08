@@ -11,5 +11,6 @@ export enum Response {
 	USER_NOT_SUBSCRIBED = 'Ezzel az email címmel előfizető nem létezik',
 	MUST_BE_EMAIL = 'Érvényes email címet adj meg',
 	CASE_NO_RIGHTS = 'Nincs joga megtekinteni ezt az ügyet',
-	CASE_NOT_FOUND = 'Az ügy nem található'
+	CASE_NOT_FOUND = 'Az ügy nem található',
+	MUST_BE_STRING = 'Szöveges értéknek kell lennie'
 }
