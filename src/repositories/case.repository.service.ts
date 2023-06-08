@@ -45,12 +45,7 @@ export class CaseRepositoryService {
 
     await this.caseModel.updateOne(
       { _id: caseId },
-      { $set: {
-        name: updateCase.name,
-        voters: updateCase.voters,
-        includedAreaTypes: updateCase.includedAreaTypes,
-        isClosed: updateCase.isClosed
-      }}
+      { $set: updateCase }
     );
     await session.commitTransaction();
     await session.endSession();

@@ -50,7 +50,8 @@ export class UpdateCaseDto {
   includedAreaTypes: string[];
 
   @ValidateIf((object, value) => value)
-  @IsBoolean() isClosed: boolean;
+  @IsBoolean()
+  isClosed: boolean;
 
   @ValidateIf((object, value) => value)
   @IsNotEmptyString()
