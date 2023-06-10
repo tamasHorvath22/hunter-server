@@ -51,6 +51,7 @@ export class OwnerDto {
   @IsNumber() quota: number;
   @IsNotEmptyString() type: string;
   @IsNotEmptyString() details: string;
+  @IsNotEmptyString() id: string;
 }
 
 export class UpdateCaseDto {

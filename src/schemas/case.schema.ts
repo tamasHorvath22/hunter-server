@@ -34,6 +34,7 @@ export class Owner {
   @Prop() quota: number;
   @Prop() type: string;
   @Prop() details: string;
+  @Prop() id: string;
 }
 
 export class Voter {
