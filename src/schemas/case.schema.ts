@@ -22,6 +22,12 @@ export class Area {
   @Prop() area: number;
   @Prop() type: string;
   @Prop() id: string;
+  @Prop() groupByTypes: TypeAndArea[];
+}
+
+export class TypeAndArea {
+  @Prop() area: number;
+  @Prop() type: string;
 }
 
 export class Owner {

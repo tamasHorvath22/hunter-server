@@ -1,4 +1,4 @@
-import { Area, Owner, Voter } from '../schemas/case.schema';
+import { Area, Owner, TypeAndArea, Voter } from '../schemas/case.schema';
 import { IsNotEmptyString } from '../validators/not-empty-string';
 import { IsArray, IsBoolean, IsNumber, IsString, Max, ValidateIf, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -19,14 +19,32 @@ export class CreateCaseDto {
 export class AreaRequestDto {
   @IsNotEmptyString() lotNumber: string;
 
-  @IsNumber() area: number;
+  @ValidateIf((object, value) => value)
+  @IsNumber()
+  area: number;
 
-  @IsNotEmptyString() type: string;
+  @ValidateIf((object, value) => value)
+  @IsNotEmptyString()
+  type: string;
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => OwnerDto)
   owners: Owner[];
+
+  @ValidateIf((object, value) => value)
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => TypeAndAreaDto)
+  groupByTypes: TypeAndArea[];
+}
+
+export class TypeAndAreaDto {
+  @IsNumber()
+  area: number;
+
+  @IsNotEmptyString()
+  type: string;
 }
 
 export class OwnerDto {
@@ -73,6 +91,6 @@ export class VoterAreaRequestDto {
   @IsNotEmptyString() areaId: string;
 
   @IsNumber()
-  @Max(1)
+  @Max(100)
   quota: number;
 }
