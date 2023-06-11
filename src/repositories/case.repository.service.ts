@@ -15,7 +15,7 @@ export class CaseRepositoryService {
     const session = await this.caseModel.db.startSession();
     session.startTransaction();
     try {
-      const newCaseDocument = this.createAreaIds(new this.caseModel(newCase));
+      const newCaseDocument = new this.caseModel(newCase);
       await newCaseDocument.save();
       await session.commitTransaction();
       await session.endSession();
@@ -50,14 +50,6 @@ export class CaseRepositoryService {
     await session.commitTransaction();
     await session.endSession();
     return this.getCase(caseId.toString());
-  }
-
-  private createAreaIds(newCase: CaseDocument): CaseDocument {
-    const caseId = newCase._id.toString();
-    for (let index = 0; index < newCase.rawAreas.length; index++) {
-      newCase.rawAreas[index].id = `${caseId}-area-${index}`;
-    }
-    return newCase;
   }
 
 }

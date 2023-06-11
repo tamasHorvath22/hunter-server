@@ -21,7 +21,6 @@ export class Area {
   @Prop() owners: Owner[];
   @Prop() area: number;
   @Prop() type: string;
-  @Prop() id: string;
   @Prop() groupByTypes: TypeAndArea[];
 }
 
@@ -45,6 +44,6 @@ export class Voter {
 }
 
 export class VoterArea {
-  @Prop() areaId: string;
+  @Prop() areaLotNumber: string;
   @Prop() quota: number;
 }

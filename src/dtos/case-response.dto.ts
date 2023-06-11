@@ -13,7 +13,6 @@ export interface AreaResponseDto {
   owners: OwnerResponseDto[];
   area: number;
   type: string;
-  id: string;
 }
 
 export interface OwnerResponseDto {
@@ -30,7 +29,7 @@ export interface VoterResponseDto {
 }
 
 export interface VoterAreaResponseDto {
-  areaId: string;
+  areaLotNumber: string;
   quota: number;
 }
 
