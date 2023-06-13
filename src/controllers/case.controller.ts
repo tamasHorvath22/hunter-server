@@ -4,8 +4,8 @@ import { JwtTokenDecoder } from '../decorators/jwt-token.decoder';
 import { CaseService } from '../services/case.service';
 import { CaseMetaDto } from '../dtos/case-meta.dto';
 import { TokenUser } from '../types/token-user';
-import { CaseResponseDto, UpdatedCaseDto } from '../dtos/case-response.dto';
-import { CreateCaseDto, UpdateCaseDto } from '../dtos/case-request.dtos';
+import { CaseResponseDto, ModifiedAreaDto, UpdatedCaseDto } from '../dtos/case-response.dto';
+import { CreateCaseDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
 
 @Controller('/api')
 export class CaseController {
@@ -27,6 +27,15 @@ export class CaseController {
     @JwtTokenDecoder() user: TokenUser
   ): Promise<UpdatedCaseDto> {
     return this.caseService.updateCase(updateCaseDto, user.userId);
+  }
+
+  @Put('/case/modify-area')
+  @UseGuards(RoleGuard())
+  async modifyArea(
+    @Body() updateCaseDto: ModifyAreaDto,
+    @JwtTokenDecoder() user: TokenUser
+  ): Promise<ModifiedAreaDto> {
+    return this.caseService.modifyArea(updateCaseDto, user.userId);
   }
 
   @Get('/cases')

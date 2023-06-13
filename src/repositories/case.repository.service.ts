@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { DocumentName } from '../enums/document-name';
-import { Case, CaseDocument } from '../schemas/case.schema';
+import { Area, Case, CaseDocument } from '../schemas/case.schema';
 import { CaseNotFoundException } from '../exceptions/case-not-found.exception';
 import { UpdateCaseDto } from '../dtos/case-request.dtos';
 
@@ -46,6 +46,19 @@ export class CaseRepositoryService {
     await this.caseModel.updateOne(
       { _id: caseId },
       { $set: updateCase }
+    );
+    await session.commitTransaction();
+    await session.endSession();
+    return this.getCase(caseId.toString());
+  }
+
+  public async modifyArea(caseId: mongoose.Types.ObjectId, areas: Area[]): Promise<Case> {
+    const session = await this.caseModel.db.startSession();
+    session.startTransaction();
+
+    await this.caseModel.updateOne(
+      { _id: caseId },
+      { $set: { rawAreas: areas } }
     );
     await session.commitTransaction();
     await session.endSession();

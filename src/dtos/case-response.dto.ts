@@ -40,3 +40,9 @@ export interface UpdatedCaseDto {
   voters: VoterResponseDto[];
   includedAreaTypes: string[];
 }
+
+export interface ModifiedAreaDto {
+  caseId: string;
+  lotNumber: string;
+  area: number;
+}

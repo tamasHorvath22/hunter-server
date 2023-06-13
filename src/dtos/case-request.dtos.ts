@@ -95,3 +95,13 @@ export class VoterAreaRequestDto {
   @Max(100)
   quota: number;
 }
+
+export class ModifyAreaDto {
+  @IsNotEmptyString() caseId: string;
+
+  @IsNotEmptyString()
+  lotNumber: string;
+
+  @IsNumber()
+  area
+}

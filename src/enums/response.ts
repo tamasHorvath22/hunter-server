@@ -12,5 +12,6 @@ export enum Response {
 	MUST_BE_EMAIL = 'Érvényes email címet adj meg',
 	CASE_NO_RIGHTS = 'Nincs joga megtekinteni ezt az ügyet',
 	CASE_NOT_FOUND = 'Az ügy nem található',
+	AREA_NOT_FOUND = 'Terület ilyen helyrajzi számmal nem található',
 	MUST_BE_STRING = 'Szöveges értéknek kell lennie'
 }

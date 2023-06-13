@@ -1,6 +1,6 @@
 import { Case } from '../schemas/case.schema';
 import { CaseMetaDto } from '../dtos/case-meta.dto';
-import { CaseResponseDto, UpdatedCaseDto } from '../dtos/case-response.dto';
+import { CaseResponseDto, ModifiedAreaDto, UpdatedCaseDto } from '../dtos/case-response.dto';
 
 export namespace CaseMapper {
   export function toCaseMeta(inputCase: Case): CaseMetaDto {
@@ -30,6 +30,14 @@ export namespace CaseMapper {
       includedAreaTypes: caseData.includedAreaTypes,
       isClosed: caseData.isClosed,
       voters: caseData.voters
+    }
+  }
+
+  export function toModifiedAreaDto(caseData: Case, lotNumber: string): ModifiedAreaDto {
+    return {
+      caseId: caseData._id.toString(),
+      lotNumber: lotNumber,
+      area: caseData.rawAreas.find(area => area.lotNumber === lotNumber).area
     }
   }
 }

@@ -1,13 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CaseRepositoryService } from '../repositories/case.repository.service';
 import { Response } from '../enums/response';
-import { Case } from '../schemas/case.schema';
+import { Area, Case } from '../schemas/case.schema';
 import { CaseMetaDto } from '../dtos/case-meta.dto';
 import { CaseMapper } from '../mappers/case.mapper';
 import { CaseNoRightsException } from '../exceptions/case-no-rights.exception';
 import { CaseNotFoundException } from '../exceptions/case-not-found.exception';
-import { CaseResponseDto, UpdatedCaseDto } from '../dtos/case-response.dto';
-import { CreateCaseDto, UpdateCaseDto } from '../dtos/case-request.dtos';
+import { CaseResponseDto, ModifiedAreaDto, UpdatedCaseDto } from '../dtos/case-response.dto';
+import { CreateCaseDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
+import { AreaNotFoundException } from '../exceptions/area-not-found.exception';
 
 @Injectable()
 export class CaseService {
@@ -47,6 +48,27 @@ export class CaseService {
       return [];
     }
     return cases.map(CaseMapper.toCaseMeta);
+  }
+
+  async modifyArea(modifyAreaDto: ModifyAreaDto, userId: string): Promise<ModifiedAreaDto> {
+    const caseData = await this.caseRepository.getCase(modifyAreaDto.caseId);
+    if (!caseData || caseData.creator !== userId) {
+      throw new CaseNotFoundException();
+    }
+    const area = caseData.rawAreas.find(area => area.lotNumber === modifyAreaDto.lotNumber);
+    if (!area) {
+      throw new AreaNotFoundException();
+    }
+    const modifiedArea: Area = {
+      ...area,
+      area: modifyAreaDto.area
+    };
+    const updatedAreas = [
+      ...caseData.rawAreas.filter(area => area.lotNumber !== modifyAreaDto.lotNumber),
+      modifiedArea
+    ];
+    const updatedCase = await this.caseRepository.modifyArea(caseData._id, updatedAreas);
+    return CaseMapper.toModifiedAreaDto(updatedCase, modifyAreaDto.lotNumber);
   }
 
   async getCase(userId: string, caseId: string): Promise<CaseResponseDto> {
