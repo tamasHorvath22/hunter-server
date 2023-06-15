@@ -46,3 +46,9 @@ export interface ModifiedAreaDto {
   lotNumber: string;
   area: number;
 }
+
+export interface NewAreaDto {
+  id: string;
+  updatedVoter: VoterResponseDto;
+  newArea: AreaResponseDto;
+}

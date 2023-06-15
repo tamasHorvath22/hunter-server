@@ -47,3 +47,10 @@ export class VoterArea {
   @Prop() areaLotNumber: string;
   @Prop() quota: number;
 }
+
+export interface NewOwner {
+  details: string;
+  quota: number;
+  id: string;
+  addToVoter: boolean;
+}

@@ -39,7 +39,7 @@ export class CaseRepositoryService {
     }
   }
 
-  public async updateCase(caseId: mongoose.Types.ObjectId, updateCase: UpdateCaseDto): Promise<Case> {
+  public async updateCase(caseId: mongoose.Types.ObjectId, updateCase: Partial<Case>): Promise<Case> {
     const session = await this.caseModel.db.startSession();
     session.startTransaction();
 

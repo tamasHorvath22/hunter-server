@@ -1,14 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CaseRepositoryService } from '../repositories/case.repository.service';
 import { Response } from '../enums/response';
-import { Area, Case } from '../schemas/case.schema';
+import { Area, Case, Voter } from '../schemas/case.schema';
 import { CaseMetaDto } from '../dtos/case-meta.dto';
 import { CaseMapper } from '../mappers/case.mapper';
 import { CaseNoRightsException } from '../exceptions/case-no-rights.exception';
 import { CaseNotFoundException } from '../exceptions/case-not-found.exception';
 import { CaseResponseDto, ModifiedAreaDto, UpdatedCaseDto } from '../dtos/case-response.dto';
-import { CreateCaseDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
+import { CreateAreaDto, CreateCaseDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
 import { AreaNotFoundException } from '../exceptions/area-not-found.exception';
+import { AreaAlreadyExistsException } from '../exceptions/area-already-exists.exception';
 
 @Injectable()
 export class CaseService {
@@ -31,6 +32,54 @@ export class CaseService {
       throw new HttpException(Response.CASE_CREATE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     return this.getCases(userId);
+  }
+
+  async createArea(createAreaDto: CreateAreaDto, userId: string): Promise<any> {
+    const caseData = await this.caseRepository.getCase(createAreaDto.caseId);
+    if (!caseData || caseData.creator !== userId) {
+      throw new CaseNotFoundException();
+    }
+    const existingLotNumbers = caseData.rawAreas.map(area => area.lotNumber);
+    if (existingLotNumbers.includes(createAreaDto.lotNumber)) {
+      throw new AreaAlreadyExistsException();
+    }
+    const newArea: Area = {
+      area: createAreaDto.area,
+      lotNumber: createAreaDto.lotNumber,
+      type: createAreaDto.type,
+      groupByTypes: null,
+      owners: createAreaDto.owners.map(owner => ({
+        id: owner.id,
+        type: undefined,
+        details: owner.details,
+        quota: owner.quota
+      }))
+    };
+    const addToVoterQuotas = createAreaDto.owners.filter(owner => owner.addToVoter);
+    const addToVoter = !!addToVoterQuotas.length;
+    let updatedVoter: Voter;
+    if (addToVoter) {
+      const voter = caseData.voters.find(voter => voter.id === createAreaDto.createdForVoter);
+      updatedVoter = {
+        ...voter,
+        areas: [
+          ...voter.areas,
+          {
+            areaLotNumber: createAreaDto.lotNumber,
+            quota: addToVoterQuotas.reduce((sum, owner) => sum + owner.quota, 0)
+          }
+        ]
+      };
+    }
+    const caseToSave: Partial<Case> = {
+      voters: [...caseData.voters.filter(v => v.id !== createAreaDto.createdForVoter), updatedVoter],
+      rawAreas: [
+        ...caseData.rawAreas,
+        newArea
+      ]
+    };
+    const updatedCase = await this.caseRepository.updateCase(caseData._id, caseToSave);
+    return CaseMapper.toNewAreaDto(updatedCase, createAreaDto.lotNumber, addToVoter ? createAreaDto.createdForVoter : null);
   }
 
   async updateCase(updateCaseDto: UpdateCaseDto, userId: string): Promise<UpdatedCaseDto> {

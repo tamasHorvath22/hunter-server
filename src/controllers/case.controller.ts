@@ -5,7 +5,7 @@ import { CaseService } from '../services/case.service';
 import { CaseMetaDto } from '../dtos/case-meta.dto';
 import { TokenUser } from '../types/token-user';
 import { CaseResponseDto, ModifiedAreaDto, UpdatedCaseDto } from '../dtos/case-response.dto';
-import { CreateCaseDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
+import { CreateAreaDto, CreateCaseDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
 
 @Controller('/api')
 export class CaseController {
@@ -18,6 +18,15 @@ export class CaseController {
     @JwtTokenDecoder() user: TokenUser
   ): Promise<CaseMetaDto[]> {
     return this.caseService.createCase(createCaseDto, user.userId);
+  }
+
+  @Post('/case/area')
+  @UseGuards(RoleGuard())
+  async createArea(
+    @Body() createAreaDto: CreateAreaDto,
+    @JwtTokenDecoder() user: TokenUser
+  ): Promise<any> {
+    return this.caseService.createArea(createAreaDto, user.userId);
   }
 
   @Put('/case')
