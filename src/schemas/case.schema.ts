@@ -53,4 +53,5 @@ export interface NewOwner {
   quota: number;
   id: string;
   addToVoter: boolean;
+  ownerType: string;
 }

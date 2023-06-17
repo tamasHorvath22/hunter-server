@@ -128,5 +128,6 @@ export class NewAreaOwnerDto {
   @IsNumber() quota: number;
   @IsNotEmptyString() id: string;
   @IsBoolean() addToVoter: boolean;
+  @IsNotEmptyString() ownerType: string;
 }
 

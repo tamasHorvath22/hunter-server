@@ -50,7 +50,7 @@ export class CaseService {
       groupByTypes: null,
       owners: createAreaDto.owners.map(owner => ({
         id: owner.id,
-        type: undefined,
+        type: owner.ownerType,
         details: owner.details,
         quota: owner.quota
       }))
