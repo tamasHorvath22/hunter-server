@@ -2,6 +2,7 @@ import { Area, NewOwner, Owner, TypeAndArea, Voter, VoterArea } from '../schemas
 import { IsNotEmptyString } from '../validators/not-empty-string';
 import { IsArray, IsBoolean, IsNumber, IsString, Max, ValidateIf, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { AreAreasByGroup } from '../validators/areas-by-group.validator';
 
 export class CreateCaseDto {
   @IsNotEmptyString() name: string;
@@ -99,11 +100,15 @@ export class VoterAreaRequestDto {
 export class ModifyAreaDto {
   @IsNotEmptyString() caseId: string;
 
-  @IsNotEmptyString()
-  lotNumber: string;
+  @IsNotEmptyString() lotNumber: string;
 
+  @ValidateIf((object, value) => value)
   @IsNumber()
-  area
+  area: number;
+
+  @ValidateIf((object, value) => value)
+  @AreAreasByGroup()
+  areas: Record<string, number>;
 }
 
 export class CreateAreaDto {

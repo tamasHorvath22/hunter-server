@@ -110,7 +110,10 @@ export class CaseService {
     }
     const modifiedArea: Area = {
       ...area,
-      area: modifyAreaDto.area
+      area: modifyAreaDto.area ? modifyAreaDto.area : area.area,
+      groupByTypes: modifyAreaDto.areas
+        ? area.groupByTypes.map(group => ({ ...group, area: modifyAreaDto.areas[group.type] }))
+        : null
     };
     const updatedAreas = [
       ...caseData.rawAreas.filter(area => area.lotNumber !== modifyAreaDto.lotNumber),

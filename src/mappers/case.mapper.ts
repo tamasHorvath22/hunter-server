@@ -34,10 +34,12 @@ export namespace CaseMapper {
   }
 
   export function toModifiedAreaDto(caseData: Case, lotNumber: string): ModifiedAreaDto {
+    const area = caseData.rawAreas.find(area => area.lotNumber === lotNumber);
     return {
       caseId: caseData._id.toString(),
       lotNumber: lotNumber,
-      area: caseData.rawAreas.find(area => area.lotNumber === lotNumber).area
+      area: area.area,
+      areas: area.groupByTypes
     }
   }
 

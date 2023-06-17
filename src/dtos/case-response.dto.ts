@@ -1,3 +1,5 @@
+import { TypeAndArea } from '../schemas/case.schema';
+
 export interface CaseResponseDto {
   name: string;
   id: string;
@@ -45,6 +47,7 @@ export interface ModifiedAreaDto {
   caseId: string;
   lotNumber: string;
   area: number;
+  areas: TypeAndArea[];
 }
 
 export interface NewAreaDto {
