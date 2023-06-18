@@ -22,6 +22,7 @@ export class Area {
   @Prop() area: number;
   @Prop() type: string;
   @Prop() groupByTypes: TypeAndArea[];
+  @Prop() isManuallyCreated: boolean;
 }
 
 export class TypeAndArea {
@@ -54,5 +55,5 @@ export interface NewOwner {
   quota: number;
   id: string;
   addToVoter: boolean;
-  ownerType: string;
+  type: string;
 }

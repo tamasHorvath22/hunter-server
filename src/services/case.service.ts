@@ -6,7 +6,7 @@ import { CaseMetaDto } from '../dtos/case-meta.dto';
 import { CaseMapper } from '../mappers/case.mapper';
 import { CaseNoRightsException } from '../exceptions/case-no-rights.exception';
 import { CaseNotFoundException } from '../exceptions/case-not-found.exception';
-import { CaseResponseDto, ModifiedAreaDto, UpdatedCaseDto } from '../dtos/case-response.dto';
+import { CaseResponseDto, ModifiedAreaDto, NewAreaDto, UpdatedCaseDto } from '../dtos/case-response.dto';
 import { CreateAreaDto, CreateCaseDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
 import { AreaNotFoundException } from '../exceptions/area-not-found.exception';
 import { AreaAlreadyExistsException } from '../exceptions/area-already-exists.exception';
@@ -23,7 +23,7 @@ export class CaseService {
       creator: userId,
       isClosed: false,
       voters: [],
-      rawAreas: createCaseDto.areas,
+      rawAreas: createCaseDto.areas.map(area => ({ ...area, isManuallyCreated: false })),
       name: createCaseDto.name,
       includedAreaTypes: createCaseDto.includedAreaTypes
     };
@@ -34,7 +34,7 @@ export class CaseService {
     return this.getCases(userId);
   }
 
-  async createArea(createAreaDto: CreateAreaDto, userId: string): Promise<any> {
+  async createArea(createAreaDto: CreateAreaDto, userId: string): Promise<NewAreaDto> {
     const caseData = await this.caseRepository.getCase(createAreaDto.caseId);
     if (!caseData || caseData.creator !== userId) {
       throw new CaseNotFoundException();
@@ -48,22 +48,22 @@ export class CaseService {
       lotNumber: createAreaDto.lotNumber,
       type: createAreaDto.type,
       groupByTypes: null,
+      isManuallyCreated: true,
       owners: createAreaDto.owners.map(owner => ({
         id: owner.id,
-        type: owner.ownerType,
+        type: owner.type,
         details: owner.details,
         quota: owner.quota
       }))
     };
     const addToVoterQuotas = createAreaDto.owners.filter(owner => owner.addToVoter);
     const addToVoter = !!addToVoterQuotas.length;
-    let updatedVoter: Voter;
+    let updatedVoter = JSON.parse(JSON.stringify(caseData.voters.find(voter => voter.id === createAreaDto.createdForVoter)));
     if (addToVoter) {
-      const voter = caseData.voters.find(voter => voter.id === createAreaDto.createdForVoter);
       updatedVoter = {
-        ...voter,
+        ...updatedVoter,
         areas: [
-          ...voter.areas,
+          ...updatedVoter.areas,
           {
             areaLotNumber: createAreaDto.lotNumber,
             quota: addToVoterQuotas.reduce((sum, owner) => sum + owner.quota, 0),
@@ -72,15 +72,43 @@ export class CaseService {
         ]
       };
     }
-    const caseToSave: Partial<Case> = {
-      voters: [...caseData.voters.filter(v => v.id !== createAreaDto.createdForVoter), updatedVoter],
-      rawAreas: [
-        ...caseData.rawAreas,
-        newArea
-      ]
+
+    const caseToSave = {
+      rawAreas: [...caseData.rawAreas, newArea],
+      voters: [...caseData.voters.filter(v => v.id !== createAreaDto.createdForVoter), updatedVoter]
     };
+
     const updatedCase = await this.caseRepository.updateCase(caseData._id, caseToSave);
     return CaseMapper.toNewAreaDto(updatedCase, createAreaDto.lotNumber, addToVoter ? createAreaDto.createdForVoter : null);
+  }
+
+  async updateArea(updateAreaDto: CreateAreaDto, userId: string): Promise<NewAreaDto> {
+    const caseData = await this.caseRepository.getCase(updateAreaDto.caseId);
+    if (!caseData || caseData.creator !== userId) {
+      throw new CaseNotFoundException();
+    }
+
+    const area = caseData.rawAreas.find(area => area.lotNumber === updateAreaDto.lotNumber);
+    const updatedArea: Area = {
+      ...area,
+      area: updateAreaDto.area,
+      owners: updateAreaDto.owners.map(owner => ({
+        id: owner.id,
+        type: owner.type,
+        details: owner.details,
+        quota: owner.quota
+      }))
+    };
+
+    const caseToSave = {
+      rawAreas: [
+        ...caseData.rawAreas.filter(area => area.lotNumber !== updateAreaDto.lotNumber),
+        updatedArea
+      ],
+    };
+
+    const updatedCase = await this.caseRepository.updateCase(caseData._id, caseToSave);
+    return CaseMapper.toNewAreaDto(updatedCase, updateAreaDto.lotNumber, null);
   }
 
   async updateCase(updateCaseDto: UpdateCaseDto, userId: string): Promise<UpdatedCaseDto> {

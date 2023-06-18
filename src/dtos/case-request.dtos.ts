@@ -137,7 +137,7 @@ export class NewAreaOwnerDto {
   @IsNotEmptyString() details: string;
   @IsNumber() quota: number;
   @IsNotEmptyString() id: string;
-  @IsBoolean() addToVoter: boolean;
-  @IsNotEmptyString() ownerType: string;
+  addToVoter?: boolean;
+  @IsNotEmptyString() type: string;
 }
 

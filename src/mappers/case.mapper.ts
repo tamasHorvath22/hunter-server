@@ -43,7 +43,7 @@ export namespace CaseMapper {
     }
   }
 
-  export function toNewAreaDto(caseData: Case, lotNumber: string, voterId): NewAreaDto {
+  export function toNewAreaDto(caseData: Case, lotNumber: string, voterId: string): NewAreaDto {
     const updatedVoter = voterId ? caseData.voters.find(v => v.id === voterId) : null;
     return {
       id: caseData._id.toString(),

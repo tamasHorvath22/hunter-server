@@ -15,6 +15,7 @@ export interface AreaResponseDto {
   owners: OwnerResponseDto[];
   area: number;
   type: string;
+  isManuallyCreated: boolean;
 }
 
 export interface OwnerResponseDto {
