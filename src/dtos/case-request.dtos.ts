@@ -95,6 +95,11 @@ export class VoterAreaRequestDto {
   @IsNumber()
   @Max(100)
   quota: number;
+
+  @ValidateIf((object, value) => value)
+  @IsArray()
+  @IsString({ each: true })
+  includedTypes: string[];
 }
 
 export class ModifyAreaDto {

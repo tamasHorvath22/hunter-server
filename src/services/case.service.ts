@@ -66,7 +66,8 @@ export class CaseService {
           ...voter.areas,
           {
             areaLotNumber: createAreaDto.lotNumber,
-            quota: addToVoterQuotas.reduce((sum, owner) => sum + owner.quota, 0)
+            quota: addToVoterQuotas.reduce((sum, owner) => sum + owner.quota, 0),
+            includedTypes: null
           }
         ]
       };

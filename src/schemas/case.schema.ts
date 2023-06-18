@@ -46,6 +46,7 @@ export class Voter {
 export class VoterArea {
   @Prop() areaLotNumber: string;
   @Prop() quota: number;
+  @Prop() includedTypes: string[];
 }
 
 export interface NewOwner {
