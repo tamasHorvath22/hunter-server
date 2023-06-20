@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CaseRepositoryService } from '../repositories/case.repository.service';
 import { Response } from '../enums/response';
-import { Area, Case, Voter } from '../schemas/case.schema';
+import { Area, Case, NewOwner } from '../schemas/case.schema';
 import { CaseMetaDto } from '../dtos/case-meta.dto';
 import { CaseMapper } from '../mappers/case.mapper';
 import { CaseNoRightsException } from '../exceptions/case-no-rights.exception';
@@ -10,6 +10,7 @@ import { CaseResponseDto, ModifiedAreaDto, NewAreaDto, UpdatedCaseDto } from '..
 import { CreateAreaDto, CreateCaseDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
 import { AreaNotFoundException } from '../exceptions/area-not-found.exception';
 import { AreaAlreadyExistsException } from '../exceptions/area-already-exists.exception';
+import { InvalidQuotaSumException } from '../exceptions/invalid-quota-sum';
 
 @Injectable()
 export class CaseService {
@@ -42,6 +43,9 @@ export class CaseService {
     const existingLotNumbers = caseData.rawAreas.map(area => area.lotNumber);
     if (existingLotNumbers.includes(createAreaDto.lotNumber)) {
       throw new AreaAlreadyExistsException();
+    }
+    if (!this.isQuotasSumValid(createAreaDto.owners)) {
+      throw new InvalidQuotaSumException();
     }
     const newArea: Area = {
       area: createAreaDto.area,
@@ -86,6 +90,9 @@ export class CaseService {
     const caseData = await this.caseRepository.getCase(updateAreaDto.caseId);
     if (!caseData || caseData.creator !== userId) {
       throw new CaseNotFoundException();
+    }
+    if (!this.isQuotasSumValid(updateAreaDto.owners)) {
+      throw new InvalidQuotaSumException();
     }
 
     const area = caseData.rawAreas.find(area => area.lotNumber === updateAreaDto.lotNumber);
@@ -161,5 +168,10 @@ export class CaseService {
       throw new CaseNoRightsException();
     }
     return CaseMapper.toCaseDto(caseData);
+  }
+
+  private isQuotasSumValid(owners: NewOwner[]): boolean {
+    const quotaSum = owners.reduce((quotaSum, owner) => quotaSum + owner.quota, 0);
+    return quotaSum <= 100;
   }
 }
