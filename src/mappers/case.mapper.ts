@@ -19,6 +19,7 @@ export namespace CaseMapper {
       areas: caseData.rawAreas,
       creator: caseData.creator,
       isClosed: caseData.isClosed,
+      isRegistrationClosed: caseData.isRegistrationClosed,
       voters: caseData.voters
     }
   }
@@ -29,6 +30,7 @@ export namespace CaseMapper {
       name: caseData.name,
       includedAreaTypes: caseData.includedAreaTypes,
       isClosed: caseData.isClosed,
+      isRegistrationClosed: caseData.isRegistrationClosed,
       voters: caseData.voters
     }
   }

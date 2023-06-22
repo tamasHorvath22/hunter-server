@@ -5,6 +5,7 @@ export interface CaseResponseDto {
   id: string;
   creator: string;
   isClosed: boolean;
+  isRegistrationClosed: boolean;
   areas: AreaResponseDto[];
   voters: VoterResponseDto[];
   includedAreaTypes: string[];
@@ -40,6 +41,7 @@ export interface UpdatedCaseDto {
   id: string;
   name: string;
   isClosed: boolean;
+  isRegistrationClosed: boolean;
   voters: VoterResponseDto[];
   includedAreaTypes: string[];
 }

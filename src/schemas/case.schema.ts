@@ -9,6 +9,7 @@ export class Case extends DocumentTimestamps {
   @Prop() name: string;
   @Prop() creator: string;
   @Prop() isClosed: boolean;
+  @Prop() isRegistrationClosed: boolean;
   @Prop() rawAreas: Area[];
   @Prop() voters: Voter[];
   @Prop() includedAreaTypes: string[];

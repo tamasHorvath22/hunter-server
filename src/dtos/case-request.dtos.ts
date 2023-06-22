@@ -74,6 +74,10 @@ export class UpdateCaseDto {
   isClosed: boolean;
 
   @ValidateIf((object, value) => value)
+  @IsBoolean()
+  isRegistrationClosed: boolean;
+
+  @ValidateIf((object, value) => value)
   @IsNotEmptyString()
   name: string;
 }

@@ -23,6 +23,7 @@ export class CaseService {
     const newCase: Case = {
       creator: userId,
       isClosed: false,
+      isRegistrationClosed: false,
       voters: [],
       rawAreas: createCaseDto.areas.map(area => ({ ...area, isManuallyCreated: false })),
       name: createCaseDto.name,
