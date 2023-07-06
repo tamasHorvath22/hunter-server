@@ -53,6 +53,18 @@ export class OwnerDto {
   @IsNotEmptyString() details: string;
   @IsNumber() quota: number;
   @IsNotEmptyString() id: string;
+
+  @ValidateIf((object, value) => value)
+  @IsString()
+  name: string;
+
+  @ValidateIf((object, value) => value)
+  @IsString()
+  address: string;
+
+  @ValidateIf((object, value) => value)
+  @IsString()
+  motherName: string;
 }
 
 export class UpdateCaseDto {
@@ -137,11 +149,7 @@ export class CreateAreaDto {
   owners: NewOwner[];
 }
 
-export class NewAreaOwnerDto {
-  @IsNotEmptyString() details: string;
-  @IsNumber() quota: number;
-  @IsNotEmptyString() id: string;
-  addToVoter?: boolean;
-  @IsNotEmptyString() type: string;
+export class NewAreaOwnerDto extends OwnerDto {
+  addToVoter: boolean;
 }
 

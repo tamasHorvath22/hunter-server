@@ -23,6 +23,9 @@ export interface OwnerResponseDto {
   quota: number;
   type: string;
   details: string;
+  name?: string;
+  address?: string;
+  motherName?: string;
 }
 
 export interface VoterResponseDto {

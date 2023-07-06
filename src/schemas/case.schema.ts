@@ -36,6 +36,9 @@ export class Owner {
   @Prop() type: string;
   @Prop() details: string;
   @Prop() id: string;
+  @Prop() name?: string;
+  @Prop() address?: string;
+  @Prop() motherName?: string;
 }
 
 export class Voter {
