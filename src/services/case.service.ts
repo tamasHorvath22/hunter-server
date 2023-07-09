@@ -58,7 +58,10 @@ export class CaseService {
         id: owner.id,
         type: owner.type,
         details: owner.details,
-        quota: owner.quota
+        quota: owner.quota,
+        name: owner.name,
+        motherName: owner.motherName,
+        address: owner.address
       }))
     };
     const addToVoterQuotas = createAreaDto.owners.filter(owner => owner.addToVoter);

@@ -60,4 +60,7 @@ export interface NewOwner {
   id: string;
   addToVoter: boolean;
   type: string;
+  address: string;
+  motherName: string;
+  name: string;
 }
