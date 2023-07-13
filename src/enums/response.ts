@@ -10,4 +10,6 @@ export enum Response {
 	MUST_BE_STRING = 'Szöveges értéknek kell lennie',
 	AREA_ALREADY_EXISTS = 'Már létezik terület ezen a helyrajzi számon',
 	INVALID_QUOTA_SUM = 'A tulajdonosi hányadok összege több mint 100%',
+	INVALID_MOTION_TYPE = 'Érvénytelen indítványtípus',
+	INVALID_DATA_TYPE = 'Érvénytelen adattípus',
 }

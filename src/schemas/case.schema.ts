@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document } from 'mongoose';
 import { DocumentTimestamps } from './document-timestamps';
+import { MotionType } from '../enums/motion-type';
 
 export type CaseDocument = Case & Document;
 
@@ -13,6 +14,7 @@ export class Case extends DocumentTimestamps {
   @Prop() rawAreas: Area[];
   @Prop() voters: Voter[];
   @Prop() includedAreaTypes: string[];
+  @Prop() motions: Motion[];
 }
 
 export const CaseSchema = SchemaFactory.createForClass(Case);
@@ -52,6 +54,14 @@ export class VoterArea {
   @Prop() areaLotNumber: string;
   @Prop() quota: number;
   @Prop() includedTypes: string[];
+}
+
+export class Motion {
+  @Prop() name: string;
+  @Prop() details: string;
+  @Prop({ type: Object }) voters: Record<string, boolean>;
+  @Prop() type: MotionType;
+  @Prop() id: string;
 }
 
 export interface NewOwner {

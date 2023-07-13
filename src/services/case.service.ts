@@ -1,13 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CaseRepositoryService } from '../repositories/case.repository.service';
 import { Response } from '../enums/response';
-import { Area, Case, NewOwner } from '../schemas/case.schema';
+import { Area, Case, Motion, NewOwner } from '../schemas/case.schema';
 import { CaseMetaDto } from '../dtos/case-meta.dto';
 import { CaseMapper } from '../mappers/case.mapper';
 import { CaseNoRightsException } from '../exceptions/case-no-rights.exception';
 import { CaseNotFoundException } from '../exceptions/case-not-found.exception';
 import { CaseResponseDto, ModifiedAreaDto, NewAreaDto, UpdatedCaseDto } from '../dtos/case-response.dto';
-import { CreateAreaDto, CreateCaseDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
+import { CreateAreaDto, CreateCaseDto, CreateMotionDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
 import { AreaNotFoundException } from '../exceptions/area-not-found.exception';
 import { AreaAlreadyExistsException } from '../exceptions/area-already-exists.exception';
 import { InvalidQuotaSumException } from '../exceptions/invalid-quota-sum';
@@ -27,7 +27,8 @@ export class CaseService {
       voters: [],
       rawAreas: createCaseDto.areas.map(area => ({ ...area, isManuallyCreated: false })),
       name: createCaseDto.name,
-      includedAreaTypes: createCaseDto.includedAreaTypes
+      includedAreaTypes: createCaseDto.includedAreaTypes,
+      motions: []
     };
     const success = await this.caseRepository.createCase(newCase);
     if (!success) {
@@ -120,6 +121,25 @@ export class CaseService {
 
     const updatedCase = await this.caseRepository.updateCase(caseData._id, caseToSave);
     return CaseMapper.toNewAreaDto(updatedCase, updateAreaDto.lotNumber, null);
+  }
+
+  async createMotion(createMotionDto: CreateMotionDto, userId: string): Promise<UpdatedCaseDto> {
+    const caseData = await this.caseRepository.getCase(createMotionDto.caseId);
+    if (!caseData || caseData.creator !== userId) {
+      throw new CaseNotFoundException();
+    }
+    const newMotion: Motion = {
+      name: createMotionDto.name,
+      type: createMotionDto.motionType,
+      voters: createMotionDto.voters,
+      details: createMotionDto.details,
+      id: createMotionDto.motionId
+    };
+    const updatedMotions: Partial<Case> = {
+      motions: [...caseData.motions, newMotion]
+    };
+    const updatedCase = await this.caseRepository.updateCase(caseData._id, updatedMotions);
+    return CaseMapper.toUpdatedCaseDto(updatedCase);
   }
 
   async updateCase(updateCaseDto: UpdateCaseDto, userId: string): Promise<UpdatedCaseDto> {

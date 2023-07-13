@@ -3,6 +3,10 @@ import { IsNotEmptyString } from '../validators/not-empty-string';
 import { IsArray, IsBoolean, IsNumber, IsString, Max, ValidateIf, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AreAreasByGroup } from '../validators/areas-by-group.validator';
+import { MotionType } from '../enums/motion-type';
+import { IsMotionType } from '../validators/motion-type.validator';
+import { AreMotionVoters } from '../validators/motion-voters.validator';
+import { Response } from '../enums/response';
 
 export class CreateCaseDto {
   @IsNotEmptyString() name: string;
@@ -153,3 +157,11 @@ export class NewAreaOwnerDto extends OwnerDto {
   addToVoter: boolean;
 }
 
+export class CreateMotionDto {
+  @IsNotEmptyString() caseId: string;
+  @IsNotEmptyString() name: string;
+  @IsNotEmptyString() details: string;
+  @AreMotionVoters({ message: Response.INVALID_DATA_TYPE }) voters: Record<string, boolean>;
+  @IsMotionType({ message: Response.INVALID_MOTION_TYPE }) motionType: MotionType;
+  @IsNotEmptyString() motionId: string;
+}

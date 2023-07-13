@@ -5,7 +5,7 @@ import { CaseService } from '../services/case.service';
 import { CaseMetaDto } from '../dtos/case-meta.dto';
 import { TokenUser } from '../types/token-user';
 import { CaseResponseDto, ModifiedAreaDto, NewAreaDto, UpdatedCaseDto } from '../dtos/case-response.dto';
-import { CreateAreaDto, CreateCaseDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
+import { CreateAreaDto, CreateCaseDto, CreateMotionDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
 
 @Controller('/api')
 export class CaseController {
@@ -69,6 +69,15 @@ export class CaseController {
     @Param('caseId') caseId: string
   ): Promise<CaseResponseDto> {
     return this.caseService.getCase(user.userId, caseId);
+  }
+
+  @Post('/case/motion')
+  @UseGuards(RoleGuard())
+  async createMotion(
+    @Body() createMotionDto: CreateMotionDto,
+    @JwtTokenDecoder() user: TokenUser
+  ): Promise<UpdatedCaseDto> {
+    return this.caseService.createMotion(createMotionDto, user.userId);
   }
 
 }

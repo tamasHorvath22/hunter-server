@@ -1,4 +1,4 @@
-import { TypeAndArea } from '../schemas/case.schema';
+import { Motion, TypeAndArea } from '../schemas/case.schema';
 
 export interface CaseResponseDto {
   name: string;
@@ -9,6 +9,7 @@ export interface CaseResponseDto {
   areas: AreaResponseDto[];
   voters: VoterResponseDto[];
   includedAreaTypes: string[];
+  motions: Motion[];
 }
 
 export interface AreaResponseDto {
@@ -47,6 +48,7 @@ export interface UpdatedCaseDto {
   isRegistrationClosed: boolean;
   voters: VoterResponseDto[];
   includedAreaTypes: string[];
+  motions: Motion[];
 }
 
 export interface ModifiedAreaDto {
