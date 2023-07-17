@@ -1,4 +1,5 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
+import { VoteType } from '../enums/vote-type';
 
 export function AreMotionVoters(validationOptions?: ValidationOptions) {
   return function (object: Object, propertyName: string) {
@@ -12,7 +13,7 @@ export function AreMotionVoters(validationOptions?: ValidationOptions) {
           if (!value || typeof value !== 'object') {
             return false;
           }
-          return Object.values(value).every(v => typeof v === 'boolean');
+          return Object.values(value).every(v => Object.values(VoteType).includes(v as VoteType));
         }
       }
     })

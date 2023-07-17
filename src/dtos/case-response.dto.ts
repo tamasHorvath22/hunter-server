@@ -1,15 +1,19 @@
 import { Motion, TypeAndArea } from '../schemas/case.schema';
 
-export interface CaseResponseDto {
-  name: string;
+export interface UpdatedCaseDto {
   id: string;
-  creator: string;
+  name: string;
   isClosed: boolean;
   isRegistrationClosed: boolean;
-  areas: AreaResponseDto[];
   voters: VoterResponseDto[];
   includedAreaTypes: string[];
   motions: Motion[];
+  excludedVoters: string[];
+}
+
+export interface CaseResponseDto extends UpdatedCaseDto {
+  creator: string;
+  areas: AreaResponseDto[];
 }
 
 export interface AreaResponseDto {
@@ -39,16 +43,6 @@ export interface VoterResponseDto {
 export interface VoterAreaResponseDto {
   areaLotNumber: string;
   quota: number;
-}
-
-export interface UpdatedCaseDto {
-  id: string;
-  name: string;
-  isClosed: boolean;
-  isRegistrationClosed: boolean;
-  voters: VoterResponseDto[];
-  includedAreaTypes: string[];
-  motions: Motion[];
 }
 
 export interface ModifiedAreaDto {

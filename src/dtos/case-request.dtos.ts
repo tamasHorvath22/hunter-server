@@ -7,6 +7,7 @@ import { MotionType } from '../enums/motion-type';
 import { IsMotionType } from '../validators/motion-type.validator';
 import { AreMotionVoters } from '../validators/motion-voters.validator';
 import { Response } from '../enums/response';
+import { VoteType } from '../enums/vote-type';
 
 export class CreateCaseDto {
   @IsNotEmptyString() name: string;
@@ -96,6 +97,11 @@ export class UpdateCaseDto {
   @ValidateIf((object, value) => value)
   @IsNotEmptyString()
   name: string;
+
+  @ValidateIf((object, value) => value)
+  @IsArray()
+  @IsString({ each: true })
+  excludedVoters: string[];
 }
 
 export class VoterRequestDto {
@@ -161,7 +167,7 @@ export class CreateMotionDto {
   @IsNotEmptyString() caseId: string;
   @IsNotEmptyString() name: string;
   @IsNotEmptyString() details: string;
-  @AreMotionVoters({ message: Response.INVALID_DATA_TYPE }) voters: Record<string, boolean>;
+  @AreMotionVoters({ message: Response.INVALID_DATA_TYPE }) voters: Record<string, VoteType>;
   @IsMotionType({ message: Response.INVALID_MOTION_TYPE }) motionType: MotionType;
   @IsNotEmptyString() motionId: string;
 }

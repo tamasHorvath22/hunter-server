@@ -28,7 +28,8 @@ export class CaseService {
       rawAreas: createCaseDto.areas.map(area => ({ ...area, isManuallyCreated: false })),
       name: createCaseDto.name,
       includedAreaTypes: createCaseDto.includedAreaTypes,
-      motions: []
+      motions: [],
+      excludedVoters: []
     };
     const success = await this.caseRepository.createCase(newCase);
     if (!success) {
