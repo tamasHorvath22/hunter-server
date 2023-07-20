@@ -4,7 +4,6 @@ import mongoose, { Model } from 'mongoose';
 import { DocumentName } from '../enums/document-name';
 import { Area, Case, CaseDocument } from '../schemas/case.schema';
 import { CaseNotFoundException } from '../exceptions/case-not-found.exception';
-import { UpdateCaseDto } from '../dtos/case-request.dtos';
 
 @Injectable()
 export class CaseRepositoryService {
@@ -63,6 +62,14 @@ export class CaseRepositoryService {
     await session.commitTransaction();
     await session.endSession();
     return this.getCase(caseId.toString());
+  }
+
+  public async deleteCaseById(caseId: mongoose.Types.ObjectId): Promise<void> {
+    const session = await this.caseModel.db.startSession();
+    session.startTransaction();
+    await this.caseModel.deleteOne({ _id: caseId });
+    await session.commitTransaction();
+    await session.endSession();
   }
 
 }

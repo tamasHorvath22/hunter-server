@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { RoleGuard } from "../guards/role-guard";
 import { JwtTokenDecoder } from '../decorators/jwt-token.decoder';
 import { CaseService } from '../services/case.service';
@@ -45,6 +45,15 @@ export class CaseController {
     @JwtTokenDecoder() user: TokenUser
   ): Promise<UpdatedCaseDto> {
     return this.caseService.updateCase(updateCaseDto, user.userId);
+  }
+
+  @Delete('/case')
+  @UseGuards(RoleGuard())
+  async deleteCase(
+    @Body() deleteCaseDto: { caseId: string },
+    @JwtTokenDecoder() user: TokenUser
+  ): Promise<CaseMetaDto[]> {
+    return this.caseService.deleteCase(deleteCaseDto, user.userId);
   }
 
   @Put('/case/modify-area')

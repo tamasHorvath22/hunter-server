@@ -11,6 +11,7 @@ import { CreateAreaDto, CreateCaseDto, CreateMotionDto, ModifyAreaDto, UpdateCas
 import { AreaNotFoundException } from '../exceptions/area-not-found.exception';
 import { AreaAlreadyExistsException } from '../exceptions/area-already-exists.exception';
 import { InvalidQuotaSumException } from '../exceptions/invalid-quota-sum';
+import { DeleteErrorException } from '../exceptions/delete-error.exception';
 
 @Injectable()
 export class CaseService {
@@ -150,6 +151,19 @@ export class CaseService {
     }
     const updatedCase = await this.caseRepository.updateCase(caseData._id, updateCaseDto);
     return CaseMapper.toUpdatedCaseDto(updatedCase);
+  }
+
+  async deleteCase(deleteCaseDto: { caseId: string }, userId: string): Promise<CaseMetaDto[]> {
+    const caseData = await this.caseRepository.getCase(deleteCaseDto.caseId);
+    if (!caseData || caseData.creator !== userId) {
+      throw new CaseNotFoundException();
+    }
+    try {
+      await this.caseRepository.deleteCaseById(caseData._id);
+      return this.getCases(userId);
+    } catch {
+      throw new DeleteErrorException();
+    }
   }
 
   async getCases(userId: string): Promise<CaseMetaDto[]> {
