@@ -159,6 +159,7 @@ export class CreateAreaDto {
   owners: NewOwner[];
 }
 
+// TODO delete?
 export class NewAreaOwnerDto extends OwnerDto {
   addToVoter: boolean;
 }
@@ -170,4 +171,11 @@ export class CreateMotionDto {
   @AreMotionVoters({ message: Response.INVALID_DATA_TYPE }) voters: Record<string, VoteType>;
   @IsMotionType({ message: Response.INVALID_MOTION_TYPE }) motionType: MotionType;
   @IsNotEmptyString() motionId: string;
+}
+
+export class UpdateVoterDto {
+  @IsNotEmptyString() caseId: string;
+  @IsNotEmptyString() voterId: string;
+  @IsNotEmptyString() name: string;
+  company: string;
 }

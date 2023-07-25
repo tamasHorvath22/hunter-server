@@ -5,7 +5,14 @@ import { CaseService } from '../services/case.service';
 import { CaseMetaDto } from '../dtos/case-meta.dto';
 import { TokenUser } from '../types/token-user';
 import { CaseResponseDto, ModifiedAreaDto, NewAreaDto, UpdatedCaseDto } from '../dtos/case-response.dto';
-import { CreateAreaDto, CreateCaseDto, CreateMotionDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
+import {
+  CreateAreaDto,
+  CreateCaseDto,
+  CreateMotionDto,
+  ModifyAreaDto,
+  UpdateCaseDto,
+  UpdateVoterDto
+} from '../dtos/case-request.dtos';
 
 @Controller('/api')
 export class CaseController {
@@ -45,6 +52,15 @@ export class CaseController {
     @JwtTokenDecoder() user: TokenUser
   ): Promise<UpdatedCaseDto> {
     return this.caseService.updateCase(updateCaseDto, user.userId);
+  }
+
+  @Put('/case/voter')
+  @UseGuards(RoleGuard())
+  async updateVoter(
+    @Body() updateVoterDto: UpdateVoterDto,
+    @JwtTokenDecoder() user: TokenUser
+  ): Promise<UpdatedCaseDto> {
+    return this.caseService.updateVoter(updateVoterDto, user.userId);
   }
 
   @Delete('/case')

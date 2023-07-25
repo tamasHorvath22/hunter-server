@@ -1,17 +1,25 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CaseRepositoryService } from '../repositories/case.repository.service';
 import { Response } from '../enums/response';
-import { Area, Case, Motion, NewOwner } from '../schemas/case.schema';
+import { Area, Case, Motion, NewOwner, Voter } from '../schemas/case.schema';
 import { CaseMetaDto } from '../dtos/case-meta.dto';
 import { CaseMapper } from '../mappers/case.mapper';
 import { CaseNoRightsException } from '../exceptions/case-no-rights.exception';
 import { CaseNotFoundException } from '../exceptions/case-not-found.exception';
 import { CaseResponseDto, ModifiedAreaDto, NewAreaDto, UpdatedCaseDto } from '../dtos/case-response.dto';
-import { CreateAreaDto, CreateCaseDto, CreateMotionDto, ModifyAreaDto, UpdateCaseDto } from '../dtos/case-request.dtos';
+import {
+  CreateAreaDto,
+  CreateCaseDto,
+  CreateMotionDto,
+  ModifyAreaDto,
+  UpdateCaseDto,
+  UpdateVoterDto
+} from '../dtos/case-request.dtos';
 import { AreaNotFoundException } from '../exceptions/area-not-found.exception';
 import { AreaAlreadyExistsException } from '../exceptions/area-already-exists.exception';
 import { InvalidQuotaSumException } from '../exceptions/invalid-quota-sum';
 import { DeleteErrorException } from '../exceptions/delete-error.exception';
+import { UsernameTakenException } from '../exceptions/username-taken.exception';
 
 @Injectable()
 export class CaseService {
@@ -149,7 +157,36 @@ export class CaseService {
     if (!caseData || caseData.creator !== userId) {
       throw new CaseNotFoundException();
     }
+    if (updateCaseDto.voters) {
+      if (!this.areVotersNameUnique(updateCaseDto.voters)) {
+        throw new UsernameTakenException();
+      }
+    }
     const updatedCase = await this.caseRepository.updateCase(caseData._id, updateCaseDto);
+    return CaseMapper.toUpdatedCaseDto(updatedCase);
+  }
+
+  async updateVoter(updateVoterDto: UpdateVoterDto, userId: string): Promise<UpdatedCaseDto> {
+    const caseData = await this.caseRepository.getCase(updateVoterDto.caseId);
+    if (!caseData || caseData.creator !== userId) {
+      throw new CaseNotFoundException();
+    }
+    if (!this.areVotersNameUnique(caseData.voters)) {
+      throw new UsernameTakenException();
+    }
+    const voterToUpdate = caseData.voters.find(voter => voter.id === updateVoterDto.voterId);
+    const updatedVoter: Voter = {
+      ...voterToUpdate,
+      name: updateVoterDto.name,
+      company: updateVoterDto.company
+    }
+    const caseToUpdate: Partial<Case> = {
+      voters: [
+        ...caseData.voters.filter(voter => voter.id !== updateVoterDto.voterId),
+        updatedVoter
+      ]
+    }
+    const updatedCase = await this.caseRepository.updateCase(caseData._id, caseToUpdate);
     return CaseMapper.toUpdatedCaseDto(updatedCase);
   }
 
@@ -212,5 +249,10 @@ export class CaseService {
   private isQuotasSumValid(owners: NewOwner[]): boolean {
     const quotaSum = owners.reduce((quotaSum, owner) => quotaSum + owner.quota, 0);
     return quotaSum <= 100;
+  }
+
+  private areVotersNameUnique(voters: Voter[]): boolean {
+    const uniqueVoters = new Set(voters.map(voter => voter.name.toLowerCase()));
+    return uniqueVoters.size === voters.length;
   }
 }
