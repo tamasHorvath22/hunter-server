@@ -9,6 +9,7 @@ import {
   CreateAreaDto,
   CreateCaseDto,
   CreateMotionDto,
+  DeleteVoterDto,
   ModifyAreaDto,
   UpdateCaseDto,
   UpdateVoterDto
@@ -61,6 +62,15 @@ export class CaseController {
     @JwtTokenDecoder() user: TokenUser
   ): Promise<UpdatedCaseDto> {
     return this.caseService.updateVoter(updateVoterDto, user.userId);
+  }
+
+  @Delete('/case/voter')
+  @UseGuards(RoleGuard())
+  async deleteVoter(
+    @Body() deleteVoterDto: DeleteVoterDto,
+    @JwtTokenDecoder() user: TokenUser
+  ): Promise<UpdatedCaseDto> {
+    return this.caseService.deleteVoter(deleteVoterDto, user.userId);
   }
 
   @Delete('/case')

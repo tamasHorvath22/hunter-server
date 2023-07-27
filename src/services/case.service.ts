@@ -11,6 +11,7 @@ import {
   CreateAreaDto,
   CreateCaseDto,
   CreateMotionDto,
+  DeleteVoterDto,
   ModifyAreaDto,
   UpdateCaseDto,
   UpdateVoterDto
@@ -185,6 +186,18 @@ export class CaseService {
         ...caseData.voters.filter(voter => voter.id !== updateVoterDto.voterId),
         updatedVoter
       ]
+    }
+    const updatedCase = await this.caseRepository.updateCase(caseData._id, caseToUpdate);
+    return CaseMapper.toUpdatedCaseDto(updatedCase);
+  }
+
+  async deleteVoter(deleteVoterDto: DeleteVoterDto, userId: string): Promise<UpdatedCaseDto> {
+    const caseData = await this.caseRepository.getCase(deleteVoterDto.caseId);
+    if (!caseData || caseData.creator !== userId) {
+      throw new CaseNotFoundException();
+    }
+    const caseToUpdate: Partial<Case> = {
+      voters: caseData.voters.filter(voter => voter.id !== deleteVoterDto.voterId)
     }
     const updatedCase = await this.caseRepository.updateCase(caseData._id, caseToUpdate);
     return CaseMapper.toUpdatedCaseDto(updatedCase);

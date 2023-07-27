@@ -173,9 +173,12 @@ export class CreateMotionDto {
   @IsNotEmptyString() motionId: string;
 }
 
-export class UpdateVoterDto {
+export class DeleteVoterDto {
   @IsNotEmptyString() caseId: string;
   @IsNotEmptyString() voterId: string;
+}
+
+export class UpdateVoterDto extends DeleteVoterDto {
   @IsNotEmptyString() name: string;
   company: string;
 }
