@@ -9,6 +9,7 @@ export interface UpdatedCaseDto {
   includedAreaTypes: string[];
   motions: Motion[];
   excludedVoters: string[];
+  excludedAreas: string[];
 }
 
 export interface CaseResponseDto extends UpdatedCaseDto {

@@ -17,6 +17,7 @@ export class Case extends DocumentTimestamps {
   @Prop() includedAreaTypes: string[];
   @Prop() motions: Motion[];
   @Prop() excludedVoters: string[];
+  @Prop() excludedAreas: string[];
 }
 
 export const CaseSchema = SchemaFactory.createForClass(Case);

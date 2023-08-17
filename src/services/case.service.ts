@@ -39,7 +39,8 @@ export class CaseService {
       name: createCaseDto.name,
       includedAreaTypes: createCaseDto.includedAreaTypes,
       motions: [],
-      excludedVoters: []
+      excludedVoters: [],
+      excludedAreas: []
     };
     const success = await this.caseRepository.createCase(newCase);
     if (!success) {
@@ -162,6 +163,18 @@ export class CaseService {
       if (!this.areVotersNameUnique(updateCaseDto.voters)) {
         throw new UsernameTakenException();
       }
+    }
+    if (updateCaseDto.excludedAreas) {
+      for (const lotNumber of updateCaseDto.excludedAreas) {
+        for (const voter of caseData.voters) {
+          voter.areas = voter.areas.filter(a => a.areaLotNumber !== lotNumber);
+        }
+      }
+      updateCaseDto = {
+        ...updateCaseDto,
+        excludedAreas: [...caseData.excludedAreas, ...updateCaseDto.excludedAreas],
+        voters: caseData.voters
+      };
     }
     const updatedCase = await this.caseRepository.updateCase(caseData._id, updateCaseDto);
     return CaseMapper.toUpdatedCaseDto(updatedCase);

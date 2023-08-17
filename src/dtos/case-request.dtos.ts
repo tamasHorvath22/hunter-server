@@ -102,6 +102,11 @@ export class UpdateCaseDto {
   @IsArray()
   @IsString({ each: true })
   excludedVoters: string[];
+
+  @ValidateIf((object, value) => value)
+  @IsArray()
+  @IsString({ each: true })
+  excludedAreas: string[];
 }
 
 export class VoterRequestDto {

@@ -22,7 +22,8 @@ export namespace CaseMapper {
       isRegistrationClosed: caseData.isRegistrationClosed,
       voters: caseData.voters,
       motions: caseData.motions,
-      excludedVoters: caseData.excludedVoters
+      excludedVoters: caseData.excludedVoters,
+      excludedAreas: caseData.excludedAreas
     }
   }
 
@@ -35,7 +36,8 @@ export namespace CaseMapper {
       isRegistrationClosed: caseData.isRegistrationClosed,
       voters: caseData.voters,
       motions: caseData.motions,
-      excludedVoters: caseData.excludedVoters
+      excludedVoters: caseData.excludedVoters,
+      excludedAreas: caseData.excludedAreas
     }
   }
 
