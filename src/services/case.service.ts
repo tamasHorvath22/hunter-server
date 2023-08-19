@@ -67,15 +67,7 @@ export class CaseService {
       type: createAreaDto.type,
       groupByTypes: null,
       isManuallyCreated: true,
-      owners: createAreaDto.owners.map(owner => ({
-        id: owner.id,
-        type: owner.type,
-        details: owner.details,
-        quota: owner.quota,
-        name: owner.name,
-        motherName: owner.motherName,
-        address: owner.address
-      }))
+      owners: createAreaDto.owners
     };
     const addToVoterQuotas = createAreaDto.owners.filter(owner => owner.addToVoter);
     const addToVoter = !!addToVoterQuotas.length;
@@ -116,12 +108,7 @@ export class CaseService {
     const updatedArea: Area = {
       ...area,
       area: updateAreaDto.area,
-      owners: updateAreaDto.owners.map(owner => ({
-        id: owner.id,
-        type: owner.type,
-        details: owner.details,
-        quota: owner.quota
-      }))
+      owners: updateAreaDto.owners
     };
 
     const caseToSave = {
@@ -142,10 +129,13 @@ export class CaseService {
     }
     const newMotion: Motion = {
       name: createMotionDto.name,
-      type: createMotionDto.motionType,
+      type: createMotionDto.type,
       voters: createMotionDto.voters,
       details: createMotionDto.details,
-      id: createMotionDto.motionId
+      id: createMotionDto.id,
+      result: createMotionDto.result,
+      approved: createMotionDto.approved,
+      votersData: createMotionDto.votersData
     };
     const updatedMotions: Partial<Case> = {
       motions: [...caseData.motions, newMotion]

@@ -19,3 +19,22 @@ export function AreMotionVoters(validationOptions?: ValidationOptions) {
     })
   }
 }
+
+export function IsVoteType(validationOptions?: ValidationOptions) {
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: 'IsVoteType',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      validator: {
+        validate(value: any) {
+          if (!value) {
+            return false;
+          }
+          return Object.values(VoteType).includes(value);
+        }
+      }
+    })
+  }
+}

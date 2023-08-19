@@ -65,6 +65,9 @@ export class Motion {
   @Prop({ type: Object }) voters: Record<string, VoteType>;
   @Prop() type: MotionType;
   @Prop() id: string;
+  @Prop() result: number;
+  @Prop() approved: boolean;
+  @Prop() votersData: VoterData[];
 }
 
 export interface NewOwner {
@@ -76,4 +79,11 @@ export interface NewOwner {
   address: string;
   motherName: string;
   name: string;
+}
+
+export interface VoterData {
+  voterId: string;
+  voterName: string;
+  votedForIt: boolean;
+  value: VoteType;
 }
