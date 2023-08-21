@@ -15,6 +15,10 @@ export class SubscribedRepositoryService {
     return this.subscribedModel.findOne(subscribedFilterQuery);
   }
 
+  public async findSubscribers(query: string): Promise<SubscribedDocument[]> {
+    return this.subscribedModel.find({'email' : { $regex : query } });
+  }
+
   public async createSubscriber(subscriber): Promise<Subscribed> {
     const newSubscriber = new this.subscribedModel(subscriber);
     await newSubscriber.save();
