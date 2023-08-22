@@ -12,5 +12,6 @@ export enum Response {
 	INVALID_QUOTA_SUM = 'A tulajdonosi hányadok összege több mint 100%',
 	INVALID_MOTION_TYPE = 'Érvénytelen indítványtípus',
 	INVALID_DATA_TYPE = 'Érvénytelen adattípus',
-	DELETE_ERROR = 'Sikertelen törlés'
+	DELETE_ERROR = 'Sikertelen törlés',
+	DATABASE_ERROR = 'Adatbázis hiba'
 }

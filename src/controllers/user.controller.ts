@@ -3,6 +3,7 @@ import { UserService } from '../services/user.service';
 import { RoleGuard } from "../guards/role-guard";
 import { Role } from "../enums/role";
 import { EmailAuthDto } from '../dtos/email-auth.dto';
+import { NewSubscriberDto } from '../dtos/new-subscriber.dto';
 
 @Controller('/api')
 export class UserController {
@@ -10,13 +11,13 @@ export class UserController {
 
   @Post('/create-subscriber')
   @UseGuards(RoleGuard(Role.ADMIN))
-  async createSubscriber(@Body() createUserDto: EmailAuthDto): Promise<void> {
+  async createSubscriber(@Body() createUserDto: NewSubscriberDto): Promise<void> {
     return this.userService.createSubscriber(createUserDto);
   }
 
   @Post('/login')
   async login(@Body() loginDto: EmailAuthDto): Promise<{ token: string }> {
-    return this.userService.login(loginDto.email);
+    return this.userService.login(loginDto.emailHash);
   }
 
 }
