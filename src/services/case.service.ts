@@ -91,7 +91,7 @@ export class CaseService {
       voters: [...caseData.voters.filter(v => v.id !== createAreaDto.createdForVoter), updatedVoter]
     };
 
-    const updatedCase = await this.caseRepository.updateCase(caseData._id, caseToSave);
+    const updatedCase = await this.caseRepository.updateCase(caseData._id, this.increaseCaseVersion(caseToSave, caseData.__v));
     return CaseMapper.toNewAreaDto(updatedCase, createAreaDto.lotNumber, addToVoter ? createAreaDto.createdForVoter : null);
   }
 
@@ -118,7 +118,7 @@ export class CaseService {
       ],
     };
 
-    const updatedCase = await this.caseRepository.updateCase(caseData._id, caseToSave);
+    const updatedCase = await this.caseRepository.updateCase(caseData._id, this.increaseCaseVersion(caseToSave, caseData.__v));
     return CaseMapper.toNewAreaDto(updatedCase, updateAreaDto.lotNumber, null);
   }
 
@@ -140,7 +140,7 @@ export class CaseService {
     const updatedMotions: Partial<Case> = {
       motions: [...caseData.motions, newMotion]
     };
-    const updatedCase = await this.caseRepository.updateCase(caseData._id, updatedMotions);
+    const updatedCase = await this.caseRepository.updateCase(caseData._id, this.increaseCaseVersion(updatedMotions, caseData.__v));
     return CaseMapper.toUpdatedCaseDto(updatedCase);
   }
 
@@ -166,7 +166,7 @@ export class CaseService {
         voters: caseData.voters
       };
     }
-    const updatedCase = await this.caseRepository.updateCase(caseData._id, updateCaseDto);
+    const updatedCase = await this.caseRepository.updateCase(caseData._id, this.increaseCaseVersion(updateCaseDto, caseData.__v));
     return CaseMapper.toUpdatedCaseDto(updatedCase);
   }
 
@@ -190,7 +190,7 @@ export class CaseService {
         updatedVoter
       ]
     }
-    const updatedCase = await this.caseRepository.updateCase(caseData._id, caseToUpdate);
+    const updatedCase = await this.caseRepository.updateCase(caseData._id, this.increaseCaseVersion(caseToUpdate, caseData.__v));
     return CaseMapper.toUpdatedCaseDto(updatedCase);
   }
 
@@ -202,7 +202,7 @@ export class CaseService {
     const caseToUpdate: Partial<Case> = {
       voters: caseData.voters.filter(voter => voter.id !== deleteVoterDto.voterId)
     }
-    const updatedCase = await this.caseRepository.updateCase(caseData._id, caseToUpdate);
+    const updatedCase = await this.caseRepository.updateCase(caseData._id, this.increaseCaseVersion(caseToUpdate, caseData.__v));
     return CaseMapper.toUpdatedCaseDto(updatedCase);
   }
 
@@ -247,7 +247,7 @@ export class CaseService {
       ...caseData.rawAreas.filter(area => area.lotNumber !== modifyAreaDto.lotNumber),
       modifiedArea
     ];
-    const updatedCase = await this.caseRepository.modifyArea(caseData._id, updatedAreas);
+    const updatedCase = await this.caseRepository.modifyArea(caseData._id, updatedAreas, caseData.__v + 1);
     return CaseMapper.toModifiedAreaDto(updatedCase, modifyAreaDto.lotNumber);
   }
 
@@ -270,5 +270,10 @@ export class CaseService {
   private areVotersNameUnique(voters: Voter[]): boolean {
     const uniqueVoters = new Set(voters.map(voter => voter.name.toLowerCase()));
     return uniqueVoters.size === voters.length;
+  }
+
+  // TODO I don't like this solution
+  private increaseCaseVersion(updateCase: Partial<Case>, version: number): Partial<Case> {
+    return { ...updateCase, __v: version + 1 };
   }
 }

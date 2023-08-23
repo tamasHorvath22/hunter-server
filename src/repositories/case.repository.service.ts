@@ -39,25 +39,26 @@ export class CaseRepositoryService {
   }
 
   public async updateCase(caseId: mongoose.Types.ObjectId, updateCase: Partial<Case>): Promise<Case> {
+    const currentCase = await this.getCase(caseId.toString());
     const session = await this.caseModel.db.startSession();
     session.startTransaction();
 
     await this.caseModel.updateOne(
       { _id: caseId },
-      { $set: updateCase }
+      { $set: { ...updateCase, __v: currentCase.__v + 1 } }
     );
     await session.commitTransaction();
     await session.endSession();
     return this.getCase(caseId.toString());
   }
 
-  public async modifyArea(caseId: mongoose.Types.ObjectId, areas: Area[]): Promise<Case> {
+  public async modifyArea(caseId: mongoose.Types.ObjectId, areas: Area[], version: number): Promise<Case> {
     const session = await this.caseModel.db.startSession();
     session.startTransaction();
 
     await this.caseModel.updateOne(
       { _id: caseId },
-      { $set: { rawAreas: areas } }
+      { $set: { rawAreas: areas, __v: version } }
     );
     await session.commitTransaction();
     await session.endSession();
