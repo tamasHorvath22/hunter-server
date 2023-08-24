@@ -21,6 +21,7 @@ import { AreaAlreadyExistsException } from '../exceptions/area-already-exists.ex
 import { InvalidQuotaSumException } from '../exceptions/invalid-quota-sum';
 import { DeleteErrorException } from '../exceptions/delete-error.exception';
 import { UsernameTakenException } from '../exceptions/username-taken.exception';
+import { InvalidDataException } from '../exceptions/invalid-data.exception';
 
 @Injectable()
 export class CaseService {
@@ -76,6 +77,9 @@ export class CaseService {
     const addToVoterQuotas = createAreaDto.owners.filter(owner => owner.addToVoter);
     const addToVoter = !!addToVoterQuotas.length;
     let updatedVoter = JSON.parse(JSON.stringify(caseData.voters.find(voter => voter.id === createAreaDto.createdForVoter)));
+    if (!updatedVoter) {
+      throw new InvalidDataException();
+    }
     if (addToVoter) {
       updatedVoter = {
         ...updatedVoter,
@@ -107,8 +111,11 @@ export class CaseService {
     if (!this.isQuotasSumValid(updateAreaDto.owners)) {
       throw new InvalidQuotaSumException();
     }
-
     const area = caseData.rawAreas.find(area => area.lotNumber === updateAreaDto.lotNumber);
+    if (!area) {
+      throw new InvalidDataException();
+    }
+
     const updatedArea: Area = {
       ...area,
       area: updateAreaDto.area,
@@ -159,6 +166,7 @@ export class CaseService {
       }
     }
     if (updateCaseDto.excludedAreas) {
+      /** if any excluded area added previously to a voter, remove them */
       for (const lotNumber of updateCaseDto.excludedAreas) {
         for (const voter of caseData.voters) {
           voter.areas = voter.areas.filter(a => a.areaLotNumber !== lotNumber);
@@ -183,6 +191,9 @@ export class CaseService {
       throw new UsernameTakenException();
     }
     const voterToUpdate = caseData.voters.find(voter => voter.id === updateVoterDto.voterId);
+    if (!voterToUpdate) {
+      throw new InvalidDataException();
+    }
     const updatedVoter: Voter = {
       ...voterToUpdate,
       name: updateVoterDto.name,

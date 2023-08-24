@@ -13,5 +13,6 @@ export enum Response {
 	INVALID_MOTION_TYPE = 'Érvénytelen indítványtípus',
 	INVALID_DATA_TYPE = 'Érvénytelen adattípus',
 	DELETE_ERROR = 'Sikertelen törlés',
-	DATABASE_ERROR = 'Adatbázis hiba'
+	DATABASE_ERROR = 'Adatbázis hiba',
+	INVALID_DATA = 'Érvénytelen adat'
 }
