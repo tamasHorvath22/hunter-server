@@ -8,6 +8,8 @@ import { User, UserDocument } from '../schemas/user.schema';
 import { Subscribed } from '../schemas/subscribed.schema';
 import * as CryptoJS from 'crypto-js';
 import { NewSubscriberDto } from '../dtos/new-subscriber.dto';
+import { LoggerService } from './logger.service';
+import { LoggerType } from '../enums/logger-type';
 
 @Injectable()
 export class UserService {
@@ -15,16 +17,19 @@ export class UserService {
   constructor(
     private userRepository: UserRepositoryService,
     private subscribedRepositoryService: SubscribedRepositoryService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private loggerService: LoggerService
   ) {}
 
   async login(emailHash: string): Promise<{ token: string }> {
     const email = this.decrypt(emailHash);
     if (!email) {
+      this.loggerService.error(LoggerType.USER_SERVICE, 'Email description error.');
       throw new HttpException(Response.DATABASE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    const subscribed = await this.subscribedRepositoryService.find({ email: email });
+    const subscribed = await this.subscribedRepositoryService.find({ email });
     if (!subscribed) {
+      this.loggerService.warn(LoggerType.USER_SERVICE, `Not existing subscriber login request. Email: ${email}`);
       throw new HttpException(Response.USER_NOT_SUBSCRIBED, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     let user = await this.userRepository.find({ email: email });
@@ -39,7 +44,9 @@ export class UserService {
         validUntil
       };
       user = await this.userRepository.createUser(newUser);
+      this.loggerService.info(LoggerType.USER_SERVICE, `Successful user creation. Email: ${email}`);
     }
+    this.loggerService.info(LoggerType.USER_SERVICE, `Successful login. Email: ${email}`);
     return { token: this.generateJwtToken(user) };
   }
 

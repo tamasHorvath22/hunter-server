@@ -26,13 +26,9 @@ import { InvalidDataException } from '../exceptions/invalid-data.exception';
 @Injectable()
 export class CaseService {
 
-  private readonly logger: Logger;
-
   constructor(
     private caseRepository: CaseRepositoryService
-  ) {
-    this.logger = new Logger('CaseService');
-  }
+  ) {}
 
   async createCase(createCaseDto: CreateCaseDto, userId: string): Promise<CaseMetaDto[]> {
     const newCase: Case = {
@@ -235,12 +231,10 @@ export class CaseService {
   }
 
   async getCases(userId: string): Promise<CaseMetaDto[]> {
-    this.logger.log('get cases started');
     const cases = await this.caseRepository.getUserCases(userId);
     if (!cases) {
       return [];
     }
-    this.logger.error('get cases finished');
     return cases.map(CaseMapper.toCaseMeta);
   }
 

@@ -1,8 +1,11 @@
 export enum Response {
 	USER_CREATE_ERROR = 'Felhasználó létrehozása nem sikerült',
+	FIND_USER_ERROR = 'Felhasználó nem található',
 	USERNAME_TAKEN = 'A felhasználónév már foglalt',
 	CASE_CREATE_ERROR = 'Az ügy létrehozása nem sikerült',
 	USER_NOT_SUBSCRIBED = 'Ezzel az email címmel előfizető nem létezik',
+	SUBSCRIBED_NOT_FOUND = 'Előfizetőt nem sikerült megtalálni az adatbázisban',
+	SUBSCRIBED_CREATE_ERROR = 'Előfizetőt nem sikerült létrehozni',
 	MUST_BE_EMAIL = 'Érvényes email címet adj meg',
 	CASE_NO_RIGHTS = 'Nincs joga megtekinteni ezt az ügyet',
 	CASE_NOT_FOUND = 'Az ügy nem található',

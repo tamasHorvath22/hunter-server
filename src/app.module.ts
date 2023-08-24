@@ -14,6 +14,7 @@ import { CaseService } from './services/case.service';
 import { CaseRepositoryService } from './repositories/case.repository.service';
 import { SubscribedSchema } from './schemas/subscribed.schema';
 import { SubscribedRepositoryService } from './repositories/subscribed.repository.service';
+import { LoggerService } from './services/logger.service';
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import { SubscribedRepositoryService } from './repositories/subscribed.repositor
     UserRepositoryService,
     CaseService,
     CaseRepositoryService,
-    SubscribedRepositoryService
+    SubscribedRepositoryService,
+    LoggerService
   ]
 })
 export class AppModule {}
