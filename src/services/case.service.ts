@@ -19,12 +19,15 @@ import { AreaAlreadyExistsException } from '../exceptions/area-already-exists.ex
 import { InvalidQuotaSumException } from '../exceptions/invalid-quota-sum';
 import { UsernameTakenException } from '../exceptions/username-taken.exception';
 import { InvalidDataException } from '../exceptions/invalid-data.exception';
+import { LoggerType } from '../enums/logger-type';
+import { LoggerService } from './logger.service';
 
 @Injectable()
 export class CaseService {
 
   constructor(
-    private caseRepository: CaseRepositoryService
+    private caseRepository: CaseRepositoryService,
+    private loggerService: LoggerService
   ) {}
 
   async createCase(createCaseDto: CreateCaseDto, userId: string): Promise<CaseMetaDto[]> {
@@ -47,7 +50,7 @@ export class CaseService {
   async createArea(createAreaDto: CreateAreaDto, userId: string): Promise<NewAreaDto> {
     const caseData = await this.caseRepository.findCase(createAreaDto.caseId);
     if (caseData.creator !== userId) {
-      throw new CaseNoRightsException();
+      this.invalidCaseAccess(caseData._id.toString(), userId);
     }
     const existingLotNumbers = caseData.rawAreas.map(area => area.lotNumber);
     if (existingLotNumbers.includes(createAreaDto.lotNumber)) {
@@ -96,7 +99,7 @@ export class CaseService {
   async updateArea(updateAreaDto: CreateAreaDto, userId: string): Promise<NewAreaDto> {
     const caseData = await this.caseRepository.findCase(updateAreaDto.caseId);
     if (caseData.creator !== userId) {
-      throw new CaseNoRightsException();
+      this.invalidCaseAccess(caseData._id.toString(), userId);
     }
     if (!this.isQuotasSumValid(updateAreaDto.owners)) {
       throw new InvalidQuotaSumException();
@@ -126,7 +129,7 @@ export class CaseService {
   async createMotion(createMotionDto: CreateMotionDto, userId: string): Promise<UpdatedCaseDto> {
     const caseData = await this.caseRepository.findCase(createMotionDto.caseId);
     if (caseData.creator !== userId) {
-      throw new CaseNoRightsException();
+      this.invalidCaseAccess(caseData._id.toString(), userId);
     }
     const newMotion: Motion = {
       name: createMotionDto.name,
@@ -148,7 +151,7 @@ export class CaseService {
   async updateCase(updateCaseDto: UpdateCaseDto, userId: string): Promise<UpdatedCaseDto> {
     const caseData = await this.caseRepository.findCase(updateCaseDto.id);
     if (caseData.creator !== userId) {
-      throw new CaseNoRightsException();
+      this.invalidCaseAccess(caseData._id.toString(), userId);
     }
     if (updateCaseDto.voters) {
       if (!this.areVotersNameUnique(updateCaseDto.voters)) {
@@ -175,7 +178,7 @@ export class CaseService {
   async updateVoter(updateVoterDto: UpdateVoterDto, userId: string): Promise<UpdatedCaseDto> {
     const caseData = await this.caseRepository.findCase(updateVoterDto.caseId);
     if (caseData.creator !== userId) {
-      throw new CaseNoRightsException();
+      this.invalidCaseAccess(caseData._id.toString(), userId);
     }
     if (!this.areVotersNameUnique(caseData.voters)) {
       throw new UsernameTakenException();
@@ -202,7 +205,7 @@ export class CaseService {
   async deleteVoter(deleteVoterDto: DeleteVoterDto, userId: string): Promise<UpdatedCaseDto> {
     const caseData = await this.caseRepository.findCase(deleteVoterDto.caseId);
     if (caseData.creator !== userId) {
-      throw new CaseNoRightsException();
+      this.invalidCaseAccess(caseData._id.toString(), userId);
     }
     const caseToUpdate: Partial<Case> = {
       voters: caseData.voters.filter(voter => voter.id !== deleteVoterDto.voterId)
@@ -214,7 +217,7 @@ export class CaseService {
   async deleteCase(deleteCaseDto: { caseId: string }, userId: string): Promise<CaseMetaDto[]> {
     const caseData = await this.caseRepository.findCase(deleteCaseDto.caseId);
     if (caseData.creator !== userId) {
-      throw new CaseNoRightsException();
+      this.invalidCaseAccess(caseData._id.toString(), userId);
     }
     await this.caseRepository.deleteCaseById(caseData._id);
     return this.getCases(userId);
@@ -228,7 +231,7 @@ export class CaseService {
   async modifyArea(modifyAreaDto: ModifyAreaDto, userId: string): Promise<ModifiedAreaDto> {
     const caseData = await this.caseRepository.findCase(modifyAreaDto.caseId);
     if (caseData.creator !== userId) {
-      throw new CaseNoRightsException();
+      this.invalidCaseAccess(caseData._id.toString(), userId);
     }
     const area = caseData.rawAreas.find(area => area.lotNumber === modifyAreaDto.lotNumber);
     if (!area) {
@@ -252,9 +255,17 @@ export class CaseService {
   async getCase(userId: string, caseId: string): Promise<CaseResponseDto> {
     const caseData = await this.caseRepository.findCase(caseId);
     if (caseData.creator !== userId) {
-      throw new CaseNoRightsException();
+      this.invalidCaseAccess(caseId, userId);
     }
     return CaseMapper.toCaseDto(caseData);
+  }
+
+  private invalidCaseAccess(caseId: string, userId: string): void {
+    this.loggerService.error(
+      LoggerType.USER_SERVICE,
+      `Invalid creator access error; case ID: ${caseId}; user ID: ${userId}`
+    );
+    throw new CaseNoRightsException();
   }
 
   private isQuotasSumValid(owners: NewOwner[]): boolean {
