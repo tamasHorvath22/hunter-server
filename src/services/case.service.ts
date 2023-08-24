@@ -1,11 +1,9 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CaseRepositoryService } from '../repositories/case.repository.service';
-import { Response } from '../enums/response';
 import { Area, Case, Motion, NewOwner, Voter } from '../schemas/case.schema';
 import { CaseMetaDto } from '../dtos/case-meta.dto';
 import { CaseMapper } from '../mappers/case.mapper';
 import { CaseNoRightsException } from '../exceptions/case-no-rights.exception';
-import { CaseNotFoundException } from '../exceptions/case-not-found.exception';
 import { CaseResponseDto, ModifiedAreaDto, NewAreaDto, UpdatedCaseDto } from '../dtos/case-response.dto';
 import {
   CreateAreaDto,
@@ -19,7 +17,6 @@ import {
 import { AreaNotFoundException } from '../exceptions/area-not-found.exception';
 import { AreaAlreadyExistsException } from '../exceptions/area-already-exists.exception';
 import { InvalidQuotaSumException } from '../exceptions/invalid-quota-sum';
-import { DeleteErrorException } from '../exceptions/delete-error.exception';
 import { UsernameTakenException } from '../exceptions/username-taken.exception';
 import { InvalidDataException } from '../exceptions/invalid-data.exception';
 
@@ -43,17 +40,14 @@ export class CaseService {
       excludedVoters: [],
       excludedAreas: []
     };
-    const success = await this.caseRepository.createCase(newCase);
-    if (!success) {
-      throw new HttpException(Response.CASE_CREATE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    await this.caseRepository.createCase(newCase);
     return this.getCases(userId);
   }
 
   async createArea(createAreaDto: CreateAreaDto, userId: string): Promise<NewAreaDto> {
-    const caseData = await this.caseRepository.getCase(createAreaDto.caseId);
-    if (!caseData || caseData.creator !== userId) {
-      throw new CaseNotFoundException();
+    const caseData = await this.caseRepository.findCase(createAreaDto.caseId);
+    if (caseData.creator !== userId) {
+      throw new CaseNoRightsException();
     }
     const existingLotNumbers = caseData.rawAreas.map(area => area.lotNumber);
     if (existingLotNumbers.includes(createAreaDto.lotNumber)) {
@@ -100,9 +94,9 @@ export class CaseService {
   }
 
   async updateArea(updateAreaDto: CreateAreaDto, userId: string): Promise<NewAreaDto> {
-    const caseData = await this.caseRepository.getCase(updateAreaDto.caseId);
-    if (!caseData || caseData.creator !== userId) {
-      throw new CaseNotFoundException();
+    const caseData = await this.caseRepository.findCase(updateAreaDto.caseId);
+    if (caseData.creator !== userId) {
+      throw new CaseNoRightsException();
     }
     if (!this.isQuotasSumValid(updateAreaDto.owners)) {
       throw new InvalidQuotaSumException();
@@ -130,9 +124,9 @@ export class CaseService {
   }
 
   async createMotion(createMotionDto: CreateMotionDto, userId: string): Promise<UpdatedCaseDto> {
-    const caseData = await this.caseRepository.getCase(createMotionDto.caseId);
-    if (!caseData || caseData.creator !== userId) {
-      throw new CaseNotFoundException();
+    const caseData = await this.caseRepository.findCase(createMotionDto.caseId);
+    if (caseData.creator !== userId) {
+      throw new CaseNoRightsException();
     }
     const newMotion: Motion = {
       name: createMotionDto.name,
@@ -152,9 +146,9 @@ export class CaseService {
   }
 
   async updateCase(updateCaseDto: UpdateCaseDto, userId: string): Promise<UpdatedCaseDto> {
-    const caseData = await this.caseRepository.getCase(updateCaseDto.id);
-    if (!caseData || caseData.creator !== userId) {
-      throw new CaseNotFoundException();
+    const caseData = await this.caseRepository.findCase(updateCaseDto.id);
+    if (caseData.creator !== userId) {
+      throw new CaseNoRightsException();
     }
     if (updateCaseDto.voters) {
       if (!this.areVotersNameUnique(updateCaseDto.voters)) {
@@ -179,9 +173,9 @@ export class CaseService {
   }
 
   async updateVoter(updateVoterDto: UpdateVoterDto, userId: string): Promise<UpdatedCaseDto> {
-    const caseData = await this.caseRepository.getCase(updateVoterDto.caseId);
-    if (!caseData || caseData.creator !== userId) {
-      throw new CaseNotFoundException();
+    const caseData = await this.caseRepository.findCase(updateVoterDto.caseId);
+    if (caseData.creator !== userId) {
+      throw new CaseNoRightsException();
     }
     if (!this.areVotersNameUnique(caseData.voters)) {
       throw new UsernameTakenException();
@@ -206,9 +200,9 @@ export class CaseService {
   }
 
   async deleteVoter(deleteVoterDto: DeleteVoterDto, userId: string): Promise<UpdatedCaseDto> {
-    const caseData = await this.caseRepository.getCase(deleteVoterDto.caseId);
-    if (!caseData || caseData.creator !== userId) {
-      throw new CaseNotFoundException();
+    const caseData = await this.caseRepository.findCase(deleteVoterDto.caseId);
+    if (caseData.creator !== userId) {
+      throw new CaseNoRightsException();
     }
     const caseToUpdate: Partial<Case> = {
       voters: caseData.voters.filter(voter => voter.id !== deleteVoterDto.voterId)
@@ -218,30 +212,23 @@ export class CaseService {
   }
 
   async deleteCase(deleteCaseDto: { caseId: string }, userId: string): Promise<CaseMetaDto[]> {
-    const caseData = await this.caseRepository.getCase(deleteCaseDto.caseId);
-    if (!caseData || caseData.creator !== userId) {
-      throw new CaseNotFoundException();
+    const caseData = await this.caseRepository.findCase(deleteCaseDto.caseId);
+    if (caseData.creator !== userId) {
+      throw new CaseNoRightsException();
     }
-    try {
-      await this.caseRepository.deleteCaseById(caseData._id);
-      return this.getCases(userId);
-    } catch {
-      throw new DeleteErrorException();
-    }
+    await this.caseRepository.deleteCaseById(caseData._id);
+    return this.getCases(userId);
   }
 
   async getCases(userId: string): Promise<CaseMetaDto[]> {
     const cases = await this.caseRepository.getUserCases(userId);
-    if (!cases) {
-      return [];
-    }
     return cases.map(CaseMapper.toCaseMeta);
   }
 
   async modifyArea(modifyAreaDto: ModifyAreaDto, userId: string): Promise<ModifiedAreaDto> {
-    const caseData = await this.caseRepository.getCase(modifyAreaDto.caseId);
-    if (!caseData || caseData.creator !== userId) {
-      throw new CaseNotFoundException();
+    const caseData = await this.caseRepository.findCase(modifyAreaDto.caseId);
+    if (caseData.creator !== userId) {
+      throw new CaseNoRightsException();
     }
     const area = caseData.rawAreas.find(area => area.lotNumber === modifyAreaDto.lotNumber);
     if (!area) {
@@ -263,10 +250,7 @@ export class CaseService {
   }
 
   async getCase(userId: string, caseId: string): Promise<CaseResponseDto> {
-    const caseData = await this.caseRepository.getCase(caseId);
-    if (!caseData) {
-      throw new CaseNotFoundException();
-    }
+    const caseData = await this.caseRepository.findCase(caseId);
     if (caseData.creator !== userId) {
       throw new CaseNoRightsException();
     }
