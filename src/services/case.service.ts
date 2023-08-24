@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CaseRepositoryService } from '../repositories/case.repository.service';
 import { Response } from '../enums/response';
 import { Area, Case, Motion, NewOwner, Voter } from '../schemas/case.schema';
@@ -25,9 +25,13 @@ import { UsernameTakenException } from '../exceptions/username-taken.exception';
 @Injectable()
 export class CaseService {
 
+  private readonly logger: Logger;
+
   constructor(
     private caseRepository: CaseRepositoryService
-  ) {}
+  ) {
+    this.logger = new Logger('CaseService');
+  }
 
   async createCase(createCaseDto: CreateCaseDto, userId: string): Promise<CaseMetaDto[]> {
     const newCase: Case = {
@@ -220,10 +224,12 @@ export class CaseService {
   }
 
   async getCases(userId: string): Promise<CaseMetaDto[]> {
+    this.logger.log('get cases started');
     const cases = await this.caseRepository.getUserCases(userId);
     if (!cases) {
       return [];
     }
+    this.logger.error('get cases finished');
     return cases.map(CaseMapper.toCaseMeta);
   }
 
