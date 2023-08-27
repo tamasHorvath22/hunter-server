@@ -3,4 +3,5 @@ export enum LoggerType {
   USER_REPOSITORY_SERVICE = 'user repository service',
   SUBSCRIBED_REPOSITORY_SERVICE = 'subscribed repository service',
   CASE_REPOSITORY_SERVICE = 'case repository service',
+  CASE_SERVICE = 'case service',
 }
