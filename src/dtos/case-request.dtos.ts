@@ -1,6 +1,6 @@
 import { Area, NewOwner, Owner, TypeAndArea, Voter, VoterArea, VoterData } from '../schemas/case.schema';
 import { IsNotEmptyString } from '../validators/not-empty-string';
-import { IsArray, IsBoolean, IsNumber, IsString, Max, ValidateIf, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsMongoId, IsNumber, IsString, Max, ValidateIf, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AreAreasByGroup } from '../validators/areas-by-group.validator';
 import { MotionType } from '../enums/motion-type';
@@ -73,7 +73,9 @@ export class OwnerDto {
 }
 
 export class UpdateCaseDto {
-  @IsNotEmptyString() id: string;
+  @IsMongoId()
+  @IsNotEmptyString()
+  id: string;
 
   @ValidateIf((object, value) => value)
   @ValidateNested({ each: true })
@@ -148,7 +150,9 @@ export class ModifyAreaDto {
 }
 
 export class CreateAreaDto {
-  @IsNotEmptyString() caseId: string;
+  @IsMongoId()
+  @IsNotEmptyString()
+  caseId: string;
 
   @IsNotEmptyString() lotNumber: string;
 
@@ -173,7 +177,11 @@ export class CreateMotionDto {
   @IsNotEmptyString() name: string;
   @IsNotEmptyString() details: string;
   @IsNotEmptyString() id: string;
-  @IsNotEmptyString() caseId: string;
+
+  @IsMongoId()
+  @IsNotEmptyString()
+  caseId: string;
+
   @AreMotionVoters({ message: Response.INVALID_DATA_TYPE }) voters: Record<string, VoteType>;
   @IsMotionType({ message: Response.INVALID_MOTION_TYPE }) type: MotionType;
   @IsNumber() result;
@@ -193,7 +201,10 @@ export class VoterDataDto {
 }
 
 export class DeleteVoterDto {
-  @IsNotEmptyString() caseId: string;
+  @IsMongoId()
+  @IsNotEmptyString()
+  caseId: string;
+
   @IsNotEmptyString() voterId: string;
 }
 
