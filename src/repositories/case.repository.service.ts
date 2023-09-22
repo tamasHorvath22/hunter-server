@@ -29,7 +29,7 @@ export class CaseRepositoryService {
 
   public async getUserCases(userId: string): Promise<Case[]> {
     try {
-      return await this.caseModel.find({ creator: { $in: userId }}).exec();
+      return await this.caseModel.find({ creator: userId });
     } catch (error) {
       this.loggerService.error(LoggerType.CASE_REPOSITORY_SERVICE, `Cases meta find error, ${error}`);
       throw new HttpException(Response.CASES_META_FIND_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -38,7 +38,7 @@ export class CaseRepositoryService {
 
   public async findCase(caseId: string): Promise<Case> {
     try {
-      return await this.caseModel.findById(caseId).exec();
+      return await this.caseModel.findById(caseId);
     } catch (error) {
       this.loggerService.error(LoggerType.CASE_REPOSITORY_SERVICE, `Find case error, ${error}`);
       throw new CaseNotFoundException();
@@ -47,10 +47,9 @@ export class CaseRepositoryService {
 
   public async updateCase(caseId: mongoose.Types.ObjectId, updateCase: Partial<Case>): Promise<Case> {
     try {
-      const currentCase = await this.findCase(caseId.toString());
       await this.caseModel.updateOne(
         { _id: caseId },
-        { $set: { ...updateCase, __v: currentCase.__v + 1 } }
+        { $set: updateCase }
       );
       return this.findCase(caseId.toString());
     } catch (error) {
